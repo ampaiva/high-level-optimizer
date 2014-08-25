@@ -2,16 +2,15 @@ package com.ampaiva.test;
 
 public class PointTestClass {
 
-    public float x;
-
-    public float y;
+    protected float x;
+    protected float y;
 
     /**
      * Sets the x coordinate of this point.
      * 
      * @param x the x coordinate of this point when drawn on the page.
      */
-    private void setX(float x) {
+    public void setX(float x) {
         this.x = x;
     }
 
@@ -20,7 +19,7 @@ public class PointTestClass {
      * 
      * @return the x coordinate of this point.
      */
-    private float getX() {
+    public float getX() {
         return x;
     }
 
@@ -29,7 +28,7 @@ public class PointTestClass {
      * 
      * @param y the y coordinate of this point when drawn on the page.
      */
-    private void setY(float y) {
+    public void setY(float y) {
         this.y = y;
     }
 
@@ -38,7 +37,8 @@ public class PointTestClass {
      * 
      * @return the y coordinate of this point.
      */
-    private float getY() {
+    public float getY() {
         return y;
     }
-}
+
+} // End of Point.java
