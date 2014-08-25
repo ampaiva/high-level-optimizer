@@ -45,13 +45,15 @@ final class Helper {
         // hide the constructor
     }
 
-    private static File getFile(String clazz) {
-        return new File("./test-classes", clazz + ".java");
+    private static File getFile(String sourceFolder, String clazz) {
+        String folder = getFolderByPackage(sourceFolder, clazz);
+
+        return new File(folder + ".java");
     }
 
-    public static CompilationUnit parserClass(String clazz) throws ParseException {
+    public static CompilationUnit parserClass(String sourceFolder, String clazz) throws ParseException {
         try {
-            return JavaParser.parse(getFile(clazz));
+            return JavaParser.parse(getFile(sourceFolder, clazz));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -59,6 +61,30 @@ final class Helper {
 
     public static CompilationUnit parserString(String source) throws ParseException {
         return JavaParser.parse(new StringBufferInputStream(source));
+    }
+
+    public static String readClass(String sourceFolder, String clazz) throws IOException {
+        return readFile(getFile(sourceFolder, clazz));
+    }
+
+    public static File[] getFiles(String sourceFolder, String packageName) {
+        String folder = getFolderByPackage(sourceFolder, packageName);
+        return new File(folder).listFiles();
+    }
+
+    public static File createFile(String sourceFolder, String packageName, String clazz) {
+        String folder = getFolderByPackage(sourceFolder, packageName);
+        new File(folder).mkdirs();
+        return new File(folder, clazz + ".java");
+    }
+
+    private static String getFolderByPackage(String sourceFolder, String packageName) {
+        String folder = "." + File.separator + sourceFolder;
+        String[] dirs = packageName.split("\\.");
+        for (String dir : dirs) {
+            folder = folder + File.separator + dir;
+        }
+        return folder;
     }
 
     public static String readFile(File file) throws IOException {
@@ -74,29 +100,6 @@ final class Helper {
         } finally {
             reader.close();
         }
-    }
-
-    public static String readClass(String clazz) throws IOException {
-        return readFile(getFile(clazz));
-    }
-
-    public static File[] getFiles(String sourceFolder, String packageName) {
-        String folder = "." + File.separator + sourceFolder;
-        String[] dirs = packageName.split("\\.");
-        for (String dir : dirs) {
-            folder = folder + File.separator + dir;
-        }
-        return new File(folder).listFiles();
-    }
-
-    public static File createFile(String sourceFolder, String packageName, String clazz) {
-        String folder = "." + File.separator + sourceFolder;
-        String[] dirs = packageName.split("\\.");
-        for (String dir : dirs) {
-            folder = folder + File.separator + dir;
-        }
-        new File(folder).mkdirs();
-        return new File(folder, clazz + ".java");
     }
 
     public static void writeFile(File file, String contents) throws IOException {
