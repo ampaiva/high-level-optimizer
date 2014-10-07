@@ -2,7 +2,7 @@ package com.ampaiva.in;
 
 public class MethodWithEHCatchAfterBrace  {
 
-	public void throwSomething() throws TestException {
+	public void throwSomething() {
         try { //1
             // These Five Lines should be Excluded
             doSomething();

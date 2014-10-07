@@ -2,19 +2,19 @@ package com.ampaiva.in;
 
 public class MethodWithVariousEH  {
 
-	public void throwSomething() throws TestException {
-        try { //1
-            // These Five Lines should be Excluded
+	public void throwSomething() throws TestException { //1
+        try { //2
+            /* These Five Lines should be Excluded */
             doSomething();
             doSomething();
             doSomething();
             doSomething();
-        } catch (Exception e) { //2
-            doMore(); //3
-        } //4
-        finally { //5
-            doNothing(); //6
-        } //7
+        } catch (Exception e) { //3
+            doMore(); //4
+        } //5
+        finally { //6
+            doNothing(); //7
+        } //8
 	}
 
     public void doNothing() {
