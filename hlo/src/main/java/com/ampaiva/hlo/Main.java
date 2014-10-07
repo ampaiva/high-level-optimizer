@@ -3,6 +3,7 @@ package com.ampaiva.hlo;
 import japa.parser.ParseException;
 
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import com.ampaiva.hlo.cm.ConcernMetricEntity;
 import com.ampaiva.hlo.cm.MetricsColector;
@@ -10,9 +11,14 @@ import com.ampaiva.hlo.cm.MetricsColector;
 public class Main {
     public static void main(String[] args) throws ParseException {
         MetricsColector metricsColector = new MetricsColector("../HW/src");
+        TreeSet<String> set = new TreeSet<String>();
         for (Entry<String, ConcernMetricEntity> entry : metricsColector.getMetrics().getHash().entrySet()) {
-            System.out.println(entry.getKey().split("\\.")[entry.getKey().split("\\.").length - 1] + "="
-                    + entry.getValue().getValue());
+            String key = entry.getKey().split("\\.")[entry.getKey().split("\\.").length - 1];
+            int value = entry.getValue().getValue();
+            set.add(key + "=" + value);
+        }
+        for (String string : set) {
+            System.out.println(string);
         }
     }
 }
