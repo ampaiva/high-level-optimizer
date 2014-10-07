@@ -124,6 +124,86 @@ public class LOCCTest {
     }
 
     @Test
+    public void testGetMetricnThrowsExceptionin1LineInsideIf() throws ParseException {
+        assertEquals(1, getLOCCBySource("class C {void x(){if(true)throw new RuntimeException();}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineVariableDeclaration() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){int i = 1;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineAssign() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){out = response.getWriter();}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineForStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){for(int i=0; i<3; i++){x();continue;}}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineWhileStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){while(true){x();break;}}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineDoStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){do{}while(true);}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineReturnStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){return;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineSynchronizedStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){synchronized (this){}}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricSwitchStmt() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){switch(z){case 1: break; default:break;}}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineReturnStmtBoolean() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {boolean x(){return true;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineArrayCreationExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {C[] x(){return new C[1];}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricEnclosedExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {boolean x(){return (z == 0) ? true : false;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineObjectCreationExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {C x(){return new C();}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineArrayAccessExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){C[] z = new C[1];z[0]=null;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineCastExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {void x(){int i = (int)2.0;}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricnThrowsExceptionin1LineThisExpr() throws ParseException {
+        assertEquals(0, getLOCCBySource("class C {int z = 0;C x(){return this;}int y(){return this.z;}}").getMetric());
+    }
+
+    @Test
     public void testGetMetricnThrowsExceptionin2Line2() throws ParseException {
         assertEquals(2, getLOCCBySource("class C {void x(){throw new RuntimeException(\"\"\n+\"\");}}").getMetric());
     }
