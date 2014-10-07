@@ -2,7 +2,7 @@ package com.ampaiva.in;
 
 public class MethodWithEHInsideTry  {
 
-	public void throwSomething() throws TestException {
+	public void throwSomething() {
         try { //1
             // Four Lines should be Excluded
             doSomething();

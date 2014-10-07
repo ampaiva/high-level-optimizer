@@ -34,6 +34,71 @@ public class LOCCTest {
     }
 
     @Test
+    public void testGetMetricInOneLineBrace0LineAfterTry1LineBeforeCatch() throws ParseException {
+        assertEquals(2, getLOCCBySource("class C {{try{\n}catch (Exception e){}}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricInOneLineBrace1LineAfterTry1LineBeforeCatch() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
+    public void testGetMetricInOneLineBrace1LineAfterTry1Stmt1LineBeforeCatch() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("x();\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
+    public void testGetMetricInOneLineBrace1LineAfterTryComments1Stmt1LineBeforeCatch() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("// Comment;\n");
+        sb.append("// Comment;\n");
+        sb.append("// Comment;\n");
+        sb.append("// Comment;\n");
+        sb.append("x();\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
+    public void testGetMetricInOneLineBrace1LineAfterTry2Stmts1LineBeforeCatch() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("x();\n");
+        sb.append("x();}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
+    public void testGetMetricInOneLineBrace1LineAfterTry2Stmts2LinesBeforeCatch() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("x();\n");
+        sb.append("x();\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
     public void testGetMetricIn2LinesBrace1LineAfterTry() throws ParseException {
         assertEquals(2, getLOCCBySource("class C {{try\n{}catch (Exception e){}}}").getMetric());
     }
@@ -50,22 +115,37 @@ public class LOCCTest {
 
     @Test
     public void testGetMetricIn2LinesBrace0LineAfterTry() throws ParseException {
-        assertEquals(1, getLOCCBySource("class C {{try{\nx();}catch (Exception e){}}}").getMetric());
+        assertEquals(2, getLOCCBySource("class C {{try{\nx();}catch (Exception e){}}}").getMetric());
     }
 
     @Test
-    public void testGetMetricnOneLine() throws ParseException {
-        assertEquals(1, getLOCC("MethodSignatureThrowsExceptioninOneLine").getMetric());
+    public void testGetMetricnThrowsExceptionin1Line() throws ParseException {
+        assertEquals(1, getLOCCBySource("class C {void x(){throw new RuntimeException();}}").getMetric());
     }
 
     @Test
-    public void testGetMetricinTwoLines() throws ParseException {
-        assertEquals(2, getLOCC("MethodSignatureThrowsExceptioninTwoLines").getMetric());
+    public void testGetMetricnThrowsExceptionin2Line2() throws ParseException {
+        assertEquals(2, getLOCCBySource("class C {void x(){throw new RuntimeException(\"\"\n+\"\");}}").getMetric());
+    }
+
+    @Test
+    public void testGetMetricMethodSignatureThrowsExceptionin1Line() throws ParseException {
+        assertEquals(1,
+                getLOCCBySource("class C {void throwSomething() throws TestException, AnotherException{doNothing();}}")
+                        .getMetric());
+    }
+
+    @Test
+    public void testGetMetricMethodSignatureThrowsExceptionin2Lines() throws ParseException {
+        assertEquals(
+                2,
+                getLOCCBySource("class C {void throwSomething() throws TestException,\nAnotherException{doNothing();}}")
+                        .getMetric());
     }
 
     @Test
     public void testGetMetricinWithVariousEH() throws ParseException {
-        assertEquals(7, getLOCC("MethodWithVariousEH").getMetric());
+        assertEquals(8, getLOCC("MethodWithVariousEH").getMetric());
     }
 
     @Test
