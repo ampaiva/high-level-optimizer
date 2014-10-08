@@ -12,26 +12,33 @@ import java.util.Map;
 public class ProjectVisitor {
     private final String rootFolder;
     private final String[] sourceSubFolders;
+    private final String classRegEx;
+    private final boolean searchChildrenFolders;
 
-    public ProjectVisitor(String rootFolder, String[] sourceSubFolders) {
+    public ProjectVisitor(String rootFolder, String[] sourceSubFolders, String classRegEx, boolean searchChildrenFolders) {
         this.rootFolder = rootFolder;
         this.sourceSubFolders = sourceSubFolders;
+        this.classRegEx = classRegEx;
+        this.searchChildrenFolders = searchChildrenFolders;
     }
 
     public Map<String, CompilationUnit> getCUS() throws ParseException {
         Map<String, CompilationUnit> cus = new HashMap<String, CompilationUnit>();
         for (String sourceSubFolder : sourceSubFolders) {
             String sourceFolder = rootFolder + File.separator + sourceSubFolder;
-            List<File> files = Helper.getFilesRecursevely(sourceFolder);
+            List<File> files = Helper.getFilesRecursevely(sourceFolder, classRegEx, searchChildrenFolders);
             for (File file : files) {
-                CompilationUnit cu = Helper.parserClass(file);
-                List<TypeDeclaration> types = cu.getTypes();
-                for (TypeDeclaration typeDeclaration : types) {
-                    cus.put(cu.getPackage().getName() + "." + typeDeclaration.getName(), cu);
-                }
+                getCU(cus, file);
             }
         }
         return cus;
     }
 
+    public void getCU(Map<String, CompilationUnit> cus, File file) throws ParseException {
+        CompilationUnit cu = Helper.parserClass(file);
+        List<TypeDeclaration> types = cu.getTypes();
+        for (TypeDeclaration typeDeclaration : types) {
+            cus.put(cu.getPackage().getName() + "." + typeDeclaration.getName(), cu);
+        }
+    }
 }

@@ -13,10 +13,21 @@ public class ProjectVisitorTest {
 
     @Test
     public void testGetCUS() throws ParseException {
-        ProjectVisitor projectVisitor = new ProjectVisitor("src/test/resources", new String[] { "com/ampaiva/in/util" });
+        ProjectVisitor projectVisitor = new ProjectVisitor("src/test/resources",
+                new String[] { "com/ampaiva/in/util" }, ".*", true);
         Map<String, CompilationUnit> cus = projectVisitor.getCUS();
         assertNotNull(cus);
         assertEquals(4, cus.size());
+        assertNotNull(cus.get("com.ampaiva.in.util.Snippet"));
+    }
+
+    @Test
+    public void testGetCUSOnlySnippet() throws ParseException {
+        ProjectVisitor projectVisitor = new ProjectVisitor("src/test/resources",
+                new String[] { "com/ampaiva/in/util" }, "Snippet", false);
+        Map<String, CompilationUnit> cus = projectVisitor.getCUS();
+        assertNotNull(cus);
+        assertEquals(1, cus.size());
         assertNotNull(cus.get("com.ampaiva.in.util.Snippet"));
     }
 }

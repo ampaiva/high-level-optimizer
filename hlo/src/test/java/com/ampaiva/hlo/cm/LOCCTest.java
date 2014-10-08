@@ -169,6 +169,11 @@ public class LOCCTest {
     }
 
     @Test
+    public void testGetMetricConstructorDeclaration() throws ParseException {
+        assertEquals(1, getLOCCBySource("class C {C(F f) throws Exception{super(f);}}").getMetric());
+    }
+
+    @Test
     public void testGetMetricnThrowsExceptionin1LineReturnStmtBoolean() throws ParseException {
         assertEquals(0, getLOCCBySource("class C {boolean x(){return true;}}").getMetric());
     }

@@ -3,6 +3,8 @@ package com.ampaiva.hlo.cm;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
+import japa.parser.ast.body.ConstructorDeclaration;
+import japa.parser.ast.body.FieldDeclaration;
 import japa.parser.ast.body.InitializerDeclaration;
 import japa.parser.ast.body.MethodDeclaration;
 import japa.parser.ast.expr.ArrayAccessExpr;
@@ -27,6 +29,7 @@ import japa.parser.ast.stmt.BlockStmt;
 import japa.parser.ast.stmt.BreakStmt;
 import japa.parser.ast.stmt.ContinueStmt;
 import japa.parser.ast.stmt.DoStmt;
+import japa.parser.ast.stmt.ExplicitConstructorInvocationStmt;
 import japa.parser.ast.stmt.ExpressionStmt;
 import japa.parser.ast.stmt.ForStmt;
 import japa.parser.ast.stmt.IfStmt;
@@ -40,6 +43,7 @@ import japa.parser.ast.stmt.TryStmt;
 import japa.parser.ast.stmt.WhileStmt;
 import japa.parser.ast.visitor.GenericVisitorAdapter;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class LOCC {
@@ -72,30 +76,66 @@ public class LOCC {
         int total = 0;
         if (bodyDeclList != null) {
             for (BodyDeclaration body : bodyDeclList) {
-                if (body instanceof InitializerDeclaration) {
-                    InitializerDeclaration initializer = (InitializerDeclaration) body;
-                    total += countEHBlock(initializer.getBlock());
-                } else if (body instanceof MethodDeclaration) {
-                    MethodDeclaration method = (MethodDeclaration) body;
-                    total += countEHMethod(method);
+                try {
+                    total += countObject(body);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException(body.toString() + ": " + e.toString(), e);
                 }
             }
         }
         return total;
     }
 
-    private int countEHMethod(MethodDeclaration m) {
+    private int countObject(Object body) {
         int total = 0;
-        if (m.getThrows() != null && m.getThrows().size() > 0) {
-            total += 1 + m.getThrows().get(m.getThrows().size() - 1).getBeginLine()
-                    - m.getThrows().get(0).getBeginLine();
+        if (body != null) {
+            try {
+                Method m = this.getClass()
+                        .getDeclaredMethod("count" + body.getClass().getSimpleName(), body.getClass());
+                Integer i = (Integer) m.invoke(this, body);
+                total += i;
+            } catch (Exception e) {
+                throw new IllegalArgumentException(body.toString() + ": " + e.toString(), e);
+            }
         }
-        total += countEHBlock(m.getBody());
+        return total;
+    }
+
+    private int countFieldDeclaration(FieldDeclaration field) {
+        return 0;
+    }
+
+    private int countConstructorDeclaration(ConstructorDeclaration constructor) {
+        int total = 0;
+        total += countThrowsinNameExpr(constructor.getThrows());
+        total += countBlockStmt(constructor.getBlock());
+        return total;
+    }
+
+    private int countInitializerDeclaration(InitializerDeclaration initializer) {
+        int total = 0;
+        total += countBlockStmt(initializer.getBlock());
+        return total;
+    }
+
+    private int countMethodDeclaration(MethodDeclaration m) {
+        int total = 0;
+        total += countThrowsinNameExpr(m.getThrows());
+        total += countBlockStmt(m.getBody());
 
         return total;
     }
 
-    private int countEHBlock(BlockStmt block) {
+    private int countThrowsinNameExpr(List<NameExpr> throws_) {
+        int total = 0;
+        if (throws_ == null) {
+            return 0;
+        }
+        total += 1 + throws_.get(throws_.size() - 1).getBeginLine() - throws_.get(0).getBeginLine();
+        return total;
+    }
+
+    private int countBlockStmt(BlockStmt block) {
         if (block == null) {
             return 0;
         }
@@ -120,48 +160,65 @@ public class LOCC {
         } else if (stmt instanceof TryStmt) {
             count += countTryStatement((TryStmt) stmt);
         } else if (stmt instanceof ReturnStmt) {
-            count += countEHExpression(((ReturnStmt) stmt).getExpr());
+            count += countExpression(((ReturnStmt) stmt).getExpr());
         } else if (stmt instanceof SynchronizedStmt) {
-            count += countEHExpression(((SynchronizedStmt) stmt).getExpr())
-                    + countEHBlock(((SynchronizedStmt) stmt).getBlock());
+            count += countExpression(((SynchronizedStmt) stmt).getExpr())
+                    + countBlockStmt(((SynchronizedStmt) stmt).getBlock());
         } else if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt) {
         } else if (stmt instanceof DoStmt) {
             count += countEHStatement(((DoStmt) stmt).getBody());
-            count += countEHExpression(((DoStmt) stmt).getCondition());
+            count += countExpression(((DoStmt) stmt).getCondition());
         } else if (stmt instanceof WhileStmt) {
             count += countEHStatement(((WhileStmt) stmt).getBody());
-            count += countEHExpression(((WhileStmt) stmt).getCondition());
+            count += countExpression(((WhileStmt) stmt).getCondition());
         } else if (stmt instanceof ForStmt) {
             count += countEHListExpressions(((ForStmt) stmt).getInit());
-            count += countEHExpression(((ForStmt) stmt).getCompare());
+            count += countExpression(((ForStmt) stmt).getCompare());
             count += countEHListExpressions(((ForStmt) stmt).getUpdate());
             count += countEHStatement(((ForStmt) stmt).getBody());
         } else if (stmt instanceof SwitchStmt) {
-            count += countEHExpression(((SwitchStmt) stmt).getSelector());
+            count += countExpression(((SwitchStmt) stmt).getSelector());
             count += countEHSwitchEntries(((SwitchStmt) stmt).getEntries());
         } else if (stmt instanceof BlockStmt) {
-            count += countEHBlock((BlockStmt) stmt);
+            count += countBlockStmt((BlockStmt) stmt);
         } else if (stmt instanceof ExpressionStmt) {
-            count += countEHExpression(((ExpressionStmt) stmt).getExpression());
+            count += countExpression(((ExpressionStmt) stmt).getExpression());
         } else if (stmt instanceof IfStmt) {
             count += countEHStatement(((IfStmt) stmt).getThenStmt());
             count += countEHStatement(((IfStmt) stmt).getElseStmt());
         } else if (stmt != null) {
-            throw new IllegalArgumentException(stmt.toString());
+            count += countObject(stmt);
         }
         return count;
+    }
+
+    private int countExplicitConstructorInvocationStmt(
+            ExplicitConstructorInvocationStmt explicitConstructorInvocationStmt) {
+        int total = 0;
+        total += countObject(explicitConstructorInvocationStmt.getExpr());
+        return total;
     }
 
     private int countEHSwitchEntries(List<SwitchEntryStmt> entries) {
         int total = 0;
         for (SwitchEntryStmt switchEntryStmt : entries) {
-            total += countEHExpression(switchEntryStmt.getLabel());
+            total += countExpression(switchEntryStmt.getLabel());
             total += countTryLines(switchEntryStmt.getStmts());
         }
         return total;
     }
 
-    private int countEHExpression(Expression expression) {
+    private int countEHListExpressions(List<Expression> dimensions) {
+        int count = 0;
+        if (dimensions != null) {
+            for (Expression expression : dimensions) {
+                count += countExpression(expression);
+            }
+        }
+        return count;
+    }
+
+    private int countExpression(Expression expression) {
         if (expression == null) {
             return 0;
         } else if (expression instanceof MethodCallExpr) {
@@ -169,21 +226,21 @@ public class LOCC {
         } else if (expression instanceof VariableDeclarationExpr) {
             return 0;
         } else if (expression instanceof ThisExpr) {
-            return countEHExpression(((ThisExpr) expression).getClassExpr());
+            return countExpression(((ThisExpr) expression).getClassExpr());
         } else if (expression instanceof EnclosedExpr) {
-            return countEHExpression(((EnclosedExpr) expression).getInner());
+            return countExpression(((EnclosedExpr) expression).getInner());
         } else if (expression instanceof ArrayCreationExpr) {
-            return countEHExpression(((ArrayCreationExpr) expression).getInitializer())
+            return countExpression(((ArrayCreationExpr) expression).getInitializer())
                     + countEHListExpressions(((ArrayCreationExpr) expression).getDimensions());
         } else if (expression instanceof ObjectCreationExpr) {
-            return countEHExpression(((ObjectCreationExpr) expression).getScope())
+            return countExpression(((ObjectCreationExpr) expression).getScope())
                     + countEHListExpressions(((ObjectCreationExpr) expression).getArgs())
                     + countEHListBodyDeclaration(((ObjectCreationExpr) expression).getAnonymousClassBody());
         } else if (expression instanceof ArrayAccessExpr) {
-            return countEHExpression(((ArrayAccessExpr) expression).getIndex())
-                    + countEHExpression(((ArrayAccessExpr) expression).getName());
+            return countExpression(((ArrayAccessExpr) expression).getIndex())
+                    + countExpression(((ArrayAccessExpr) expression).getName());
         } else if (expression instanceof FieldAccessExpr) {
-            return countEHExpression(((FieldAccessExpr) expression).getScope());
+            return countExpression(((FieldAccessExpr) expression).getScope());
         } else if (expression instanceof NameExpr) {
             return 0;
         } else if (expression instanceof NullLiteralExpr) {
@@ -191,33 +248,23 @@ public class LOCC {
         } else if (expression instanceof BooleanLiteralExpr) {
             return 0;
         } else if (expression instanceof BinaryExpr) {
-            return countEHExpression(((BinaryExpr) expression).getLeft())
-                    + countEHExpression(((BinaryExpr) expression).getRight());
+            return countExpression(((BinaryExpr) expression).getLeft())
+                    + countExpression(((BinaryExpr) expression).getRight());
         } else if (expression instanceof UnaryExpr) {
-            return countEHExpression(((UnaryExpr) expression).getExpr());
+            return countExpression(((UnaryExpr) expression).getExpr());
         } else if (expression instanceof StringLiteralExpr) {
             return 0;
         } else if (expression instanceof ConditionalExpr) {
-            return countEHExpression(((ConditionalExpr) expression).getCondition())
-                    + countEHExpression(((ConditionalExpr) expression).getThenExpr())
-                    + countEHExpression(((ConditionalExpr) expression).getElseExpr());
+            return countExpression(((ConditionalExpr) expression).getCondition())
+                    + countExpression(((ConditionalExpr) expression).getThenExpr())
+                    + countExpression(((ConditionalExpr) expression).getElseExpr());
         } else if (expression instanceof CastExpr) {
-            return countEHExpression(((CastExpr) expression).getExpr());
+            return countExpression(((CastExpr) expression).getExpr());
         } else if (expression instanceof AssignExpr) {
-            return countEHExpression(((AssignExpr) expression).getValue())
-                    + countEHExpression(((AssignExpr) expression).getTarget());
+            return countExpression(((AssignExpr) expression).getValue())
+                    + countExpression(((AssignExpr) expression).getTarget());
         }
         throw new IllegalArgumentException(expression.toString());
-    }
-
-    private int countEHListExpressions(List<Expression> dimensions) {
-        int count = 0;
-        if (dimensions != null) {
-            for (Expression expression : dimensions) {
-                count += countEHExpression(expression);
-            }
-        }
-        return count;
     }
 
     private int countTryStatement(TryStmt tryStmt) {
