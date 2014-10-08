@@ -31,6 +31,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -79,6 +80,15 @@ public final class Helper {
     }
 
     public static List<File> getFilesRecursevely(String sourceFolder) {
+        return getFilesRecursevely(sourceFolder, ".*");
+    }
+
+    public static List<File> getFilesRecursevely(final String sourceFolder, final String classRegEx) {
+        return getFilesRecursevely(sourceFolder, classRegEx, true);
+    }
+
+    public static List<File> getFilesRecursevely(String sourceFolder, final String classRegEx,
+            boolean searchChildrenFolders) {
         List<File> files = new ArrayList<File>();
         File folder = new File(sourceFolder);
         if (!folder.exists()) {
@@ -87,10 +97,20 @@ public final class Helper {
         if (!folder.isDirectory()) {
             throw new IllegalArgumentException(sourceFolder + " is not a folder");
         }
-        File[] filesAndFolders = new File(sourceFolder).listFiles();
+        File[] filesAndFolders = new File(sourceFolder).listFiles(new FilenameFilter() {
+
+            public boolean accept(File dir, String name) {
+                if (!name.toLowerCase().endsWith(".java")) {
+                    return true;
+                }
+                return name.substring(0, name.length() - 5).matches(classRegEx);
+            }
+        });
         for (File file : filesAndFolders) {
             if (file.isDirectory()) {
-                files.addAll(getFilesRecursevely(file.getAbsolutePath()));
+                if (searchChildrenFolders) {
+                    files.addAll(getFilesRecursevely(file.getAbsolutePath()));
+                }
                 continue;
             }
             files.add(file);

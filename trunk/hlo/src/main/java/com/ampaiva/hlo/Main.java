@@ -10,7 +10,7 @@ import com.ampaiva.hlo.cm.MetricsColector;
 
 public class Main {
     public static void main(String[] args) throws ParseException {
-        MetricsColector metricsColector = new MetricsColector("../HW/src");
+        MetricsColector metricsColector = new MetricsColector().addFolder("../HW/src");
         TreeSet<String> set = new TreeSet<String>();
         for (Entry<String, ConcernMetricEntity> entry : metricsColector.getMetrics().getHash().entrySet()) {
             String key = entry.getKey().split("\\.")[entry.getKey().split("\\.").length - 1];
