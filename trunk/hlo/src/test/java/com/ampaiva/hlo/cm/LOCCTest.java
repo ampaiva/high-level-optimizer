@@ -99,6 +99,22 @@ public class LOCCTest {
     }
 
     @Test
+    public void testGetMetricTryInsideTry() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("x();\n");
+        sb.append("{try{\n");
+        sb.append("x();\n");
+        sb.append("x();\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("x();\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        assertEquals(4, getLOCCBySource(sb.toString()).getMetric());
+    }
+
+    @Test
     public void testGetMetricIn2LinesBrace1LineAfterTry() throws ParseException {
         assertEquals(2, getLOCCBySource("class C {{try\n{}catch (Exception e){}}}").getMetric());
     }
