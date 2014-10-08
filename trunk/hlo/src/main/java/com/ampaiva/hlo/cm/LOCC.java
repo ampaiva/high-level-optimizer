@@ -129,14 +129,13 @@ public class LOCC {
 
     private int countTryStmt(TryStmt tryStmt) {
         int count = 0;
-        count += 1 + tryStmt.getEndLine() - tryStmt.getBeginLine();
-        // Block of code inside try block excluding } (end line) and { (begin line)
-        int delta = (tryStmt.getTryBlock().getEndLine() - 1) - (tryStmt.getTryBlock().getBeginLine());
-        if (delta > 0) {
-            count -= delta;
+        count += 1 + (tryStmt.getTryBlock().getBeginLine() - tryStmt.getBeginLine());
+        count += 1 + (tryStmt.getEndLine() - tryStmt.getTryBlock().getEndLine());
+        if (tryStmt.getEndLine() == tryStmt.getTryBlock().getBeginLine()) {
+            count--;
         }
+
         count += countObject(tryStmt.getTryBlock());
         return count;
     }
-
 }
