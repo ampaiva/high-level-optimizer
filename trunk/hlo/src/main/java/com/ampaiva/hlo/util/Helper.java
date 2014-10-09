@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
@@ -60,6 +61,10 @@ public final class Helper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static CompilationUnit parserClass(InputStream inputStream) throws ParseException {
+        return JavaParser.parse(inputStream);
     }
 
     public static CompilationUnit parserClass(String sourceFolder, String clazz) throws ParseException {
