@@ -3,6 +3,7 @@ package com.ampaiva.hlo.cm;
 import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,9 +33,14 @@ public class MetricsColector {
         ConcernMetricsTable concernMetricsTable = new ConcernMetricsTable();
         for (Entry<String, CompilationUnit> entry : cus.entrySet()) {
             LOCC locc = new LOCC(entry.getValue());
-            concernMetricsTable.getHash().put(entry.getKey(), new ConcernMetricEntity("LOCC", locc.getMetric()));
+            concernMetricsTable.getHash().put(locc.getKey(), locc);
         }
         return concernMetricsTable;
 
+    }
+
+    public MetricsColector addInputStream(InputStream stringBufferInputStream) throws ParseException {
+        ProjectVisitor.getCU(cus, stringBufferInputStream);
+        return this;
     }
 }

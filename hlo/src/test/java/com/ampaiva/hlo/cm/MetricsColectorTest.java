@@ -3,6 +3,8 @@ package com.ampaiva.hlo.cm;
 import static org.junit.Assert.assertEquals;
 import japa.parser.ParseException;
 
+import java.io.StringBufferInputStream;
+
 import org.junit.Test;
 
 public class MetricsColectorTest {
@@ -20,7 +22,21 @@ public class MetricsColectorTest {
                 "AddressRepositoryRDB");
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
-        assertEquals(32, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getValue());
+        assertEquals(32, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getMetric());
+    }
+
+    @Test
+    public void testGetMetricsOfInputStream() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva;\n");
+        sb.append("class C {");
+        sb.append("{try{\n");
+        sb.append("\n");
+        sb.append("}catch (Exception e){}}");
+        sb.append("}");
+        MetricsColector colector = new MetricsColector().addInputStream(new StringBufferInputStream(sb.toString()));
+        ConcernMetricsTable concernMetricsTable = colector.getMetrics();
+        assertEquals(1, concernMetricsTable.getHash().size());
     }
 
 }

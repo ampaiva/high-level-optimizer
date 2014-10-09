@@ -5,6 +5,7 @@ import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.TypeDeclaration;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,21 @@ public class ProjectVisitor {
 
     public void getCU(Map<String, CompilationUnit> cus, File file) throws ParseException {
         CompilationUnit cu = Helper.parserClass(file);
+        put(cus, cu);
+    }
+
+    public static void getCU(Map<String, CompilationUnit> cus, InputStream file) throws ParseException {
+        CompilationUnit cu = Helper.parserClass(file);
+        put(cus, cu);
+    }
+
+    public static Map<String, CompilationUnit> getCU( InputStream file) throws ParseException {
+        Map<String, CompilationUnit> cus = new HashMap<String, CompilationUnit>();
+        getCU(cus, file);
+       return cus;
+    }
+
+    private static void put(Map<String, CompilationUnit> cus, CompilationUnit cu) {
         List<TypeDeclaration> types = cu.getTypes();
         for (TypeDeclaration typeDeclaration : types) {
             cus.put(cu.getPackage().getName() + "." + typeDeclaration.getName(), cu);

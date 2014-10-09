@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-public class LOCC {
+public class LOCC extends ConcernMetric {
     private final CompilationUnit cu;
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
 
@@ -23,7 +23,12 @@ public class LOCC {
         this.cu = cu;
     }
 
+    @Override
     public int getMetric() {
+        return getNodes().countLines();
+    }
+
+    public ConcernMetricNodes getNodes() {
         final GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]>() {
             @Override
             public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, int[] total) {
@@ -34,8 +39,7 @@ public class LOCC {
         final int[] total = new int[1];
         nodes.clear();
         mva.visit(cu, total);
-        //        return total[0];
-        return nodes.countLines();
+        return nodes;
     }
 
     private void countObject(Object obj) {
@@ -121,4 +125,29 @@ public class LOCC {
 
         countObject(tryStmt.getTryBlock());
     }
+
+    @Override
+    public String toString() {
+        return "LOCC";
+    }
+
+    public String getKey() {
+        final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
+            @Override
+            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, StringBuilder total) {
+                if (total.length() > 0) {
+                    total.append(".");
+                }
+                total.append(classOrInterface.getName());
+                return null;
+            }
+        };
+        StringBuilder total = new StringBuilder();
+        if (cu.getPackage() != null) {
+            total.append(cu.getPackage().getName());
+        }
+        mva.visit(cu, total);
+        return total.toString();
+    }
+
 }

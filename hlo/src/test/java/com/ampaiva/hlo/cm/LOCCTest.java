@@ -263,4 +263,14 @@ public class LOCCTest {
     public void testGetMetricinMethodThrowsRuntimeException() throws ParseException {
         assertEquals(1, getLOCC("MethodThrowsRuntimeException").getMetric());
     }
+
+    @Test
+    public void testGetKeyOfInputStreamNoPackage() throws ParseException {
+        assertEquals("C", getLOCCBySource("class C {}").getKey());
+    }
+
+    @Test
+    public void testGetKeyOfInputStream() throws ParseException {
+        assertEquals("com.ampaiva.C", getLOCCBySource("package com.ampaiva;\nclass C {}").getKey());
+    }
 }
