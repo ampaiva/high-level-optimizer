@@ -20,7 +20,7 @@ public class MetricsColectorTest {
                 "AddressRepositoryRDB");
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
-        assertEquals(1, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getValue());
+        assertEquals(32, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getValue());
     }
 
 }

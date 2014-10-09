@@ -17,6 +17,7 @@ import java.util.List;
 
 public class LOCC {
     private final CompilationUnit cu;
+    private final ConcernMetricNodes nodes = new ConcernMetricNodes();
 
     public LOCC(CompilationUnit cu) {
         this.cu = cu;
@@ -31,8 +32,10 @@ public class LOCC {
             }
         };
         final int[] total = new int[1];
+        nodes.clear();
         mva.visit(cu, total);
-        return total[0];
+        //        return total[0];
+        return nodes.countLines();
     }
 
     private int countObject(Object obj) {
@@ -119,18 +122,25 @@ public class LOCC {
         if (throws_ == null) {
             return 0;
         }
+        nodes.add(new ConcernMetricNode(throws_.get(0).getBeginLine(), throws_.get(0).getBeginColumn(), throws_.get(
+                throws_.size() - 1).getBeginLine(), throws_.get(throws_.size() - 1).getBeginColumn()));
         total += 1 + throws_.get(throws_.size() - 1).getBeginLine() - throws_.get(0).getBeginLine();
         return total;
     }
 
     private int countThrowStmt(ThrowStmt stmt) {
+        nodes.add(new ConcernMetricNode(stmt));
         return 1 + stmt.getEndLine() - stmt.getBeginLine();
     }
 
     private int countTryStmt(TryStmt tryStmt) {
         int count = 0;
         count += 1 + (tryStmt.getTryBlock().getBeginLine() - tryStmt.getBeginLine());
+        nodes.add(tryStmt.getBeginLine(), tryStmt.getBeginColumn(), tryStmt.getTryBlock().getBeginLine(), tryStmt
+                .getTryBlock().getBeginColumn());
         count += 1 + (tryStmt.getEndLine() - tryStmt.getTryBlock().getEndLine());
+        nodes.add(tryStmt.getTryBlock().getEndLine(), tryStmt.getTryBlock().getEndColumn(), tryStmt.getEndLine(),
+                tryStmt.getEndColumn());
         if (tryStmt.getEndLine() == tryStmt.getTryBlock().getBeginLine()) {
             count--;
         }
