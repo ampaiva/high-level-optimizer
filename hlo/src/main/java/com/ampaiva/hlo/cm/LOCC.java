@@ -27,7 +27,7 @@ public class LOCC {
         final GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]>() {
             @Override
             public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, int[] total) {
-                total[0] += LOCC.this.countObject(classOrInterface.getMembers());
+                LOCC.this.countObject(classOrInterface.getMembers());
                 return null;
             }
         };
@@ -38,114 +38,87 @@ public class LOCC {
         return nodes.countLines();
     }
 
-    private int countObject(Object obj) {
-        int total = 0;
+    private void countObject(Object obj) {
         if (obj != null) {
             try {
                 if (obj instanceof List) {
-                    total += countListObject((List<?>) obj);
+                    countListObject((List<?>) obj);
                 } else {
-                    total += invokeCountMethod(obj);
+                    invokeCountMethod(obj);
                 }
             } catch (NoSuchMethodException e) {
-                total += handleNoCountMethodforType(obj, e);
+                handleNoCountMethodforType(obj, e);
             } catch (Exception e) {
                 throw new IllegalArgumentException(obj.toString() + ": " + e.toString(), e);
             }
         }
-        return total;
     }
 
-    private int countListObject(List<?> list) {
-        int total = 0;
+    private void countListObject(List<?> list) {
         if (list != null) {
             for (Object object : list) {
-                total += countObject(object);
+                countObject(object);
             }
         }
-        return total;
     }
 
-    private int handleNoCountMethodforType(Object obj, NoSuchMethodException e) {
-        int total = 0;
+    private void handleNoCountMethodforType(Object obj, NoSuchMethodException e) {
         List<Method> methods = Arrays.asList(obj.getClass().getDeclaredMethods());
         for (Method method : methods) {
-            total += getStatementsInvokingMethod(new Class[] { Statement.class, List.class }, obj, method);
+            getStatementsInvokingMethod(new Class[] { Statement.class, List.class }, obj, method);
         }
-        return total;
     }
 
-    private int getStatementsInvokingMethod(Class<?>[] classes, Object obj, Method method) {
-        int total = 0;
+    private void getStatementsInvokingMethod(Class<?>[] classes, Object obj, Method method) {
         for (Class<?> clazz : classes) {
-            total += getStatementsInvokingMethod(clazz, obj, method);
+            getStatementsInvokingMethod(clazz, obj, method);
         }
-        return total;
     }
 
-    private int getStatementsInvokingMethod(Class<?> clazz, Object obj, Method method) {
-        int total = 0;
+    private void getStatementsInvokingMethod(Class<?> clazz, Object obj, Method method) {
         if (clazz.isAssignableFrom(method.getReturnType()) && method.getParameterCount() == 0) {
             try {
-                total += countObject(method.invoke(obj));
+                countObject(method.invoke(obj));
             } catch (Exception e1) {
                 throw new IllegalArgumentException(obj.toString() + ": " + method.getName(), e1);
             }
         }
-        return total;
     }
 
-    private int invokeCountMethod(Object obj) throws NoSuchMethodException, IllegalAccessException,
+    private void invokeCountMethod(Object obj) throws NoSuchMethodException, IllegalAccessException,
             InvocationTargetException {
-        int total = 0;
         Method m = this.getClass().getDeclaredMethod("count" + obj.getClass().getSimpleName(), obj.getClass());
-        total += (Integer) m.invoke(this, obj);
-        return total;
+        m.invoke(this, obj);
     }
 
-    private int countMethodDeclaration(MethodDeclaration obj) {
-        int total = 0;
-        total += countThrowsinNameExpr(obj.getThrows());
-        total += countObject(obj.getBody());
-        return total;
+    private void countMethodDeclaration(MethodDeclaration obj) {
+        countThrowsinNameExpr(obj.getThrows());
+        countObject(obj.getBody());
     }
 
-    private int countConstructorDeclaration(ConstructorDeclaration obj) {
-        int total = 0;
-        total += countThrowsinNameExpr(obj.getThrows());
-        total += countObject(obj.getBlock());
-        return total;
+    private void countConstructorDeclaration(ConstructorDeclaration obj) {
+        countThrowsinNameExpr(obj.getThrows());
+        countObject(obj.getBlock());
     }
 
-    private int countThrowsinNameExpr(List<NameExpr> throws_) {
-        int total = 0;
+    private void countThrowsinNameExpr(List<NameExpr> throws_) {
         if (throws_ == null) {
-            return 0;
+            return;
         }
         nodes.add(new ConcernMetricNode(throws_.get(0).getBeginLine(), throws_.get(0).getBeginColumn(), throws_.get(
                 throws_.size() - 1).getBeginLine(), throws_.get(throws_.size() - 1).getBeginColumn()));
-        total += 1 + throws_.get(throws_.size() - 1).getBeginLine() - throws_.get(0).getBeginLine();
-        return total;
     }
 
-    private int countThrowStmt(ThrowStmt stmt) {
+    private void countThrowStmt(ThrowStmt stmt) {
         nodes.add(new ConcernMetricNode(stmt));
-        return 1 + stmt.getEndLine() - stmt.getBeginLine();
     }
 
-    private int countTryStmt(TryStmt tryStmt) {
-        int count = 0;
-        count += 1 + (tryStmt.getTryBlock().getBeginLine() - tryStmt.getBeginLine());
+    private void countTryStmt(TryStmt tryStmt) {
         nodes.add(tryStmt.getBeginLine(), tryStmt.getBeginColumn(), tryStmt.getTryBlock().getBeginLine(), tryStmt
                 .getTryBlock().getBeginColumn());
-        count += 1 + (tryStmt.getEndLine() - tryStmt.getTryBlock().getEndLine());
         nodes.add(tryStmt.getTryBlock().getEndLine(), tryStmt.getTryBlock().getEndColumn(), tryStmt.getEndLine(),
                 tryStmt.getEndColumn());
-        if (tryStmt.getEndLine() == tryStmt.getTryBlock().getBeginLine()) {
-            count--;
-        }
 
-        count += countObject(tryStmt.getTryBlock());
-        return count;
+        countObject(tryStmt.getTryBlock());
     }
 }
