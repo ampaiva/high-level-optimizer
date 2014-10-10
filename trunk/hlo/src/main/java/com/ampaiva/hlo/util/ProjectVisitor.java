@@ -45,16 +45,21 @@ public class ProjectVisitor {
         put(cus, cu);
     }
 
-    public static Map<String, CompilationUnit> getCU( InputStream file) throws ParseException {
+    public static Map<String, CompilationUnit> getCU(InputStream file) throws ParseException {
         Map<String, CompilationUnit> cus = new HashMap<String, CompilationUnit>();
         getCU(cus, file);
-       return cus;
+        return cus;
     }
 
     private static void put(Map<String, CompilationUnit> cus, CompilationUnit cu) {
         List<TypeDeclaration> types = cu.getTypes();
         for (TypeDeclaration typeDeclaration : types) {
-            cus.put(cu.getPackage().getName() + "." + typeDeclaration.getName(), cu);
+            StringBuilder sb = new StringBuilder();
+            if (cu.getPackage() != null) {
+                sb.append(cu.getPackage().getName()).append(".");
+            }
+            sb.append(typeDeclaration.getName());
+            cus.put(sb.toString(), cu);
         }
     }
 }
