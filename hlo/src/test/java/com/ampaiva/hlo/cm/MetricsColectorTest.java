@@ -3,7 +3,7 @@ package com.ampaiva.hlo.cm;
 import static org.junit.Assert.assertEquals;
 import japa.parser.ParseException;
 
-import java.io.StringBufferInputStream;
+import java.io.ByteArrayInputStream;
 
 import org.junit.Test;
 
@@ -34,9 +34,9 @@ public class MetricsColectorTest {
         sb.append("\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        MetricsColector colector = new MetricsColector().addInputStream(new StringBufferInputStream(sb.toString()));
+        MetricsColector colector = new MetricsColector().addInputStream(new ByteArrayInputStream(sb.toString()
+                .getBytes()));
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
     }
-
 }

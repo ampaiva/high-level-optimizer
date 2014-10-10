@@ -28,6 +28,7 @@ import japa.parser.ast.CompilationUnit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +72,7 @@ public final class Helper {
     }
 
     public static CompilationUnit parserString(String source) throws ParseException {
-        return JavaParser.parse(new StringBufferInputStream(source));
+        return JavaParser.parse(new ByteArrayInputStream(source.getBytes()));
     }
 
     public static String readClass(String sourceFolder, String clazz) throws IOException {
