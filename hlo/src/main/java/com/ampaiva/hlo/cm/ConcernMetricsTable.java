@@ -9,4 +9,8 @@ public class ConcernMetricsTable {
         return hash;
     }
 
+    @Override
+    public String toString() {
+        return "ConcernMetricsTable [hash=" + hash + "]";
+    }
 }
