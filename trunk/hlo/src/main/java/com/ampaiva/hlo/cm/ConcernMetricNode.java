@@ -18,7 +18,7 @@ public final class ConcernMetricNode extends Node implements Comparable<ConcernM
     }
 
     public CodePosition getCodePosition(String source) {
-        String[] lines = source.split("\\r?\\n");
+        String[] lines = source.split("(?<=\\r?\\n)");
         int position = 0, offset = 0;
         if (lines.length >= getEndLine()) {
             for (int i = 0; i < lines.length; i++) {
