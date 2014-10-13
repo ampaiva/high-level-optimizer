@@ -30,13 +30,13 @@ public class ConcernMetricNodes extends LinkedList<ConcernMetricNode> {
         return total;
     }
 
-    public ConcernMetricNodes add(int beginLine, int beginColumn, int endLine, int endColumn) {
-        add(new ConcernMetricNode(beginLine, beginColumn, endLine, endColumn));
+    public ConcernMetricNodes add(String source, int beginLine, int beginColumn, int endLine, int endColumn) {
+        add(new ConcernMetricNode(source, beginLine, beginColumn, endLine, endColumn));
         Collections.sort(this);
         return this;
     }
 
-    public ConcernMetricNodes add(Node node) {
-        return add(node.getBeginLine(), node.getBeginColumn(), node.getEndLine(), node.getEndColumn());
+    public ConcernMetricNodes add(String source, Node node) {
+        return add(source, node.getBeginLine(), node.getBeginColumn(), node.getEndLine(), node.getEndColumn());
     }
 }

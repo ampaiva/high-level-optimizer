@@ -2,6 +2,8 @@ package com.ampaiva.hlo;
 
 import japa.parser.ParseException;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
@@ -9,7 +11,7 @@ import com.ampaiva.hlo.cm.ConcernMetric;
 import com.ampaiva.hlo.cm.MetricsColector;
 
 public class Main {
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, FileNotFoundException, IOException {
         MetricsColector metricsColector = new MetricsColector().addFolder("../HW/src");
         TreeSet<String> set = new TreeSet<String>();
         for (Entry<String, ConcernMetric> entry : metricsColector.getMetrics().getHash().entrySet()) {

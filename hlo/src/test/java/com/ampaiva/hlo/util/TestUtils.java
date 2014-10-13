@@ -7,8 +7,6 @@ import japa.parser.ast.CompilationUnit;
 import java.io.File;
 import java.io.IOException;
 
-import com.ampaiva.hlo.Parser;
-
 public class TestUtils {
 
     private static final String COM_AMPAIVA_IN = "com.ampaiva.in";
@@ -18,20 +16,18 @@ public class TestUtils {
         Helper.writeFile(Helper.createFile(SRC_TEST_RESOURCES, "com.ampaiva.out", className), cu.toString());
     }
 
-    public static CompilationUnit getCU(String className) throws ParseException {
+    public static File getCU(String className) throws ParseException {
         return getCU(null, className);
     }
 
-    public static CompilationUnit getCU(String subPackage, String className) throws ParseException {
+    public static File getCU(String subPackage, String className) throws ParseException {
         String packageName = COM_AMPAIVA_IN;
         if (subPackage != null && subPackage.length() > 0) {
             packageName = packageName + "." + subPackage;
         }
         File fileIn = Helper.createFile(SRC_TEST_RESOURCES, packageName, className);
 
-        CompilationUnit cu = Parser.parserClass(fileIn);
-        assertNotNull(cu);
-        return cu;
+        return fileIn;
     }
 
     public static CompilationUnit getCUBySource(String source) throws ParseException {
