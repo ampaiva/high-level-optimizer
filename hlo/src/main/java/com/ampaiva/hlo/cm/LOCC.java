@@ -28,10 +28,21 @@ public class LOCC extends ConcernMetric {
         if (throws_ == null) {
             return;
         }
+
+        String source = getSource();
+        ConcernMetricNode concernMetricNode = new ConcernMetricNode(source, throws_.get(0).getBeginLine(), throws_.get(
+                0).getBeginColumn(), throws_.get(throws_.size() - 1).getEndLine(), throws_.get(throws_.size() - 1)
+                .getEndColumn());
+        String sourceUntilThrows = source.substring(0, concernMetricNode.getOffset() - 1);
+        int throwsColumn = concernMetricNode.getOffset() - 8;
+
+        while (!sourceUntilThrows.substring(throwsColumn, throwsColumn + 6).equals("throws")) {
+            throwsColumn--;
+        }
         getNodes().add(
-                new ConcernMetricNode(getSource(), throws_.get(0).getBeginLine(), throws_.get(0).getBeginColumn(),
-                        throws_.get(throws_.size() - 1).getBeginLine(), throws_.get(throws_.size() - 1)
-                                .getBeginColumn()));
+                new ConcernMetricNode(source, concernMetricNode.getBeginLine(), concernMetricNode.getBeginColumn()
+                        - (concernMetricNode.getOffset() - (throwsColumn + 1)), concernMetricNode.getEndLine(),
+                        concernMetricNode.getEndColumn()));
     }
 
     public void countThrowStmt(ThrowStmt stmt) {

@@ -65,6 +65,24 @@ public class LOCCTest {
     }
 
     @Test
+    public void testGetMetricInSimpleClass() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public void doNothing() throws RuntimeException {\n");
+        sb.append("        throw new RuntimeException(\"1232\");\n");
+        sb.append("    }\n");
+        sb.append("}");
+        LOCC loccBySource = getLOCCBySource(sb.toString());
+        assertEquals(2, loccBySource.getMetric());
+        ConcernMetricNode concernMetricNode = loccBySource.getNodes().get(0);
+        assertEquals(2, concernMetricNode.getBeginLine());
+        assertEquals(2, concernMetricNode.getEndLine());
+        assertEquals(51, concernMetricNode.getEndColumn());
+        assertEquals(27 + 1 + 29, concernMetricNode.getOffset());
+        assertEquals(23, concernMetricNode.getLength());
+    }
+
+    @Test
     public void testGetMetricInOneLineBrace1LineAfterTry1Stmt1LineBeforeCatch() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("class C {");
