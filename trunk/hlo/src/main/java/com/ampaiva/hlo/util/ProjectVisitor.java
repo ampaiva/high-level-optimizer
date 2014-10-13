@@ -5,6 +5,8 @@ import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.TypeDeclaration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +25,8 @@ public class ProjectVisitor {
         this.searchChildrenFolders = searchChildrenFolders;
     }
 
-    public Map<String, CompilationUnit> getCUS() throws ParseException {
-        Map<String, CompilationUnit> cus = new HashMap<String, CompilationUnit>();
+    public Map<String, String> getCUS() throws ParseException, FileNotFoundException, IOException {
+        Map<String, String> cus = new HashMap<String, String>();
         for (String sourceSubFolder : sourceSubFolders) {
             String sourceFolder = rootFolder + File.separator + sourceSubFolder;
             List<File> files = Helper.getFilesRecursevely(sourceFolder, classRegEx, searchChildrenFolders);
@@ -35,23 +37,23 @@ public class ProjectVisitor {
         return cus;
     }
 
-    public void getCU(Map<String, CompilationUnit> cus, File file) throws ParseException {
-        CompilationUnit cu = Helper.parserClass(file);
+    public void getCU(Map<String, String> cus, File file) throws ParseException, FileNotFoundException, IOException {
+        String cu = Helper.convertInputStream2String(Helper.convertFile2InputStream(file));
         put(cus, cu);
     }
 
-    public static void getCU(Map<String, CompilationUnit> cus, InputStream file) throws ParseException {
-        CompilationUnit cu = Helper.parserClass(file);
-        put(cus, cu);
+    public static void getCU(Map<String, String> cus, InputStream in) throws ParseException, IOException {
+        put(cus, Helper.convertInputStream2String(in));
     }
 
-    public static Map<String, CompilationUnit> getCU(InputStream file) throws ParseException {
-        Map<String, CompilationUnit> cus = new HashMap<String, CompilationUnit>();
+    public static Map<String, String> getCU(InputStream file) throws ParseException, IOException {
+        Map<String, String> cus = new HashMap<String, String>();
         getCU(cus, file);
         return cus;
     }
 
-    private static void put(Map<String, CompilationUnit> cus, CompilationUnit cu) {
+    private static void put(Map<String, String> cus, String source) throws ParseException {
+        CompilationUnit cu = Helper.parserString(source);
         List<TypeDeclaration> types = cu.getTypes();
         for (TypeDeclaration typeDeclaration : types) {
             StringBuilder sb = new StringBuilder();
@@ -59,7 +61,7 @@ public class ProjectVisitor {
                 sb.append(cu.getPackage().getName()).append(".");
             }
             sb.append(typeDeclaration.getName());
-            cus.put(sb.toString(), cu);
+            cus.put(sb.toString(), source);
         }
     }
 }

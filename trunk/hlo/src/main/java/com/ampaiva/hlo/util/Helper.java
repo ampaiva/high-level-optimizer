@@ -31,6 +31,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -69,6 +70,30 @@ public final class Helper {
 
     public static CompilationUnit parserClass(String sourceFolder, String clazz) throws ParseException {
         return parserClass(getFile(sourceFolder, clazz));
+    }
+
+    public static InputStream convertFile2InputStream(File file) throws ParseException, FileNotFoundException {
+        return new FileInputStream(file);
+    }
+
+    public static String convertFile2String(File file) throws ParseException, IOException {
+        return convertInputStream2String(convertFile2InputStream(file));
+    }
+
+    public static InputStream convertString2InputStream(String source) throws ParseException {
+        return new ByteArrayInputStream(source.getBytes());
+    }
+
+    public static String convertInputStream2String(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringBuilder out = new StringBuilder();
+        String newLine = System.getProperty("line.separator");
+        String line;
+        while ((line = reader.readLine()) != null) {
+            out.append(line);
+            out.append(newLine);
+        }
+        return out.toString();
     }
 
     public static CompilationUnit parserString(String source) throws ParseException {

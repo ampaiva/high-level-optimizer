@@ -2,30 +2,29 @@ package com.ampaiva.hlo.cm;
 
 import static org.junit.Assert.assertEquals;
 import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import org.junit.Test;
 
+import com.ampaiva.hlo.util.Helper;
 import com.ampaiva.hlo.util.TestUtils;
 
 public class LOCCTest {
 
-    private LOCC getLOCC(String className) throws ParseException {
+    private LOCC getLOCC(String className) throws ParseException, FileNotFoundException {
         return new LOCC(getCU(className));
     }
 
     private LOCC getLOCCBySource(String source) throws ParseException {
-        return new LOCC(getCUBySource(source));
+        return new LOCC(Helper.convertString2InputStream(source));
     }
 
-    private CompilationUnit getCU(String className) throws ParseException {
-        CompilationUnit cu = TestUtils.getCU("cm", className);
-        return cu;
-    }
-
-    private CompilationUnit getCUBySource(String source) throws ParseException {
-        CompilationUnit cu = TestUtils.getCUBySource(source);
-        return cu;
+    private InputStream getCU(String className) throws ParseException, FileNotFoundException {
+        File file = TestUtils.getCU("cm", className);
+        return Helper.convertFile2InputStream(file);
     }
 
     @Test
@@ -35,7 +34,23 @@ public class LOCCTest {
 
     @Test
     public void testGetMetricInOneLineBrace0LineAfterTry1LineBeforeCatch() throws ParseException {
-        assertEquals(2, getLOCCBySource("class C {{try{\n}catch (Exception e){}}}").getMetric());
+        final String source = "class C {{try{\n// Comment\n//\n\n}catch (Exception e){}}}";
+        LOCC loccBySource = getLOCCBySource(source);
+        assertEquals(2, loccBySource.getMetric());
+        ConcernMetricNodes nodes = loccBySource.getNodes();
+        assertEquals(2, nodes.size());
+        ConcernMetricNode actual = nodes.get(0);
+        assertEquals(11, actual.getOffset());
+        assertEquals(4, actual.getLength());
+    }
+
+    @Test
+    public void testGetMetricImportWithBlankLines() throws ParseException {
+        final String source = "package com.ampaiva.in;\n\n\n\n\n\npublic class AddressRepositoryRDB2 {\npublic void insert(Address end) throws ObjectAlreadyInsertedException {}}\n";
+        LOCC loccBySource = getLOCCBySource(source);
+        assertEquals(1, loccBySource.getMetric());
+        ConcernMetricNodes nodes = loccBySource.getNodes();
+        assertEquals(1, nodes.size());
     }
 
     @Test
@@ -245,22 +260,22 @@ public class LOCCTest {
     }
 
     @Test
-    public void testGetMetricinWithVariousEH() throws ParseException {
+    public void testGetMetricinWithVariousEH() throws ParseException, FileNotFoundException {
         assertEquals(8, getLOCC("MethodWithVariousEH").getMetric());
     }
 
     @Test
-    public void testGetMetricMethodWithEHCatchAfterBrace() throws ParseException {
+    public void testGetMetricMethodWithEHCatchAfterBrace() throws ParseException, FileNotFoundException {
         assertEquals(8, getLOCC("MethodWithEHCatchAfterBrace").getMetric());
     }
 
     @Test
-    public void testGetMetricMethodWithEHInsideTry() throws ParseException {
+    public void testGetMetricMethodWithEHInsideTry() throws ParseException, FileNotFoundException {
         assertEquals(12, getLOCC("MethodWithEHInsideTry").getMetric());
     }
 
     @Test
-    public void testGetMetricinMethodThrowsRuntimeException() throws ParseException {
+    public void testGetMetricinMethodThrowsRuntimeException() throws ParseException, FileNotFoundException {
         assertEquals(1, getLOCC("MethodThrowsRuntimeException").getMetric());
     }
 

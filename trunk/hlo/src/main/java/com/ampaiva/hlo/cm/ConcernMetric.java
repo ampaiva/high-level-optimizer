@@ -1,31 +1,62 @@
 package com.ampaiva.hlo.cm;
 
+import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.stmt.Statement;
 import japa.parser.ast.visitor.GenericVisitorAdapter;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ampaiva.hlo.util.Helper;
+
 public abstract class ConcernMetric {
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
-    private final CompilationUnit cu;
+    private final String source;
+    private String key;
 
-    public ConcernMetric(CompilationUnit cu) {
-        this.cu = cu;
-        final GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, int[]>() {
+    public ConcernMetric(InputStream in) {
+        try {
+            this.source = Helper.convertInputStream2String(in);
+            parseSource();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Parser error of " + in + ":", e);
+        }
+    }
+
+    private void parseSource() throws ParseException {
+        InputStream in = Helper.convertString2InputStream(source);
+        CompilationUnit cu = Helper.parserClass(in);
+        final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
             @Override
-            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, int[] total) {
+            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, StringBuilder sbKey) {
+                if (sbKey.length() > 0) {
+                    sbKey.append(".");
+                }
+                sbKey.append(classOrInterface.getName());
                 ConcernMetric.this.countObject(classOrInterface.getMembers());
                 return null;
             }
         };
-        final int[] total = new int[1];
         nodes.clear();
-        mva.visit(cu, total);
+        StringBuilder sbKey = new StringBuilder();
+        if (cu.getPackage() != null) {
+            sbKey.append(cu.getPackage().getName());
+        }
+        mva.visit(cu, sbKey);
+        key = sbKey.toString();
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public int getMetric() {
@@ -87,25 +118,6 @@ public abstract class ConcernMetric {
             InvocationTargetException {
         Method m = this.getClass().getDeclaredMethod("count" + obj.getClass().getSimpleName(), obj.getClass());
         m.invoke(this, obj);
-    }
-
-    public String getKey() {
-        final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
-            @Override
-            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, StringBuilder total) {
-                if (total.length() > 0) {
-                    total.append(".");
-                }
-                total.append(classOrInterface.getName());
-                return null;
-            }
-        };
-        StringBuilder total = new StringBuilder();
-        if (cu.getPackage() != null) {
-            total.append(cu.getPackage().getName());
-        }
-        mva.visit(cu, total);
-        return total.toString();
     }
 
 }
