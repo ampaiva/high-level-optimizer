@@ -52,7 +52,16 @@ public class ProjectVisitor {
         return cus;
     }
 
+    private static String fixJava7(String source) {
+        source = source.replace("<>", "  ");
+        source = source.replace(
+                "(NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e1)",
+                "(NoSuchFieldException                                                                         e1)");
+        return source;
+    }
+
     private static void put(Map<String, String> cus, String source) throws ParseException {
+        source = fixJava7(source);
         CompilationUnit cu = Helper.parserString(source);
         List<TypeDeclaration> types = cu.getTypes();
         for (TypeDeclaration typeDeclaration : types) {
