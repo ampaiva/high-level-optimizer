@@ -13,7 +13,7 @@ public class TestUtils {
     private static final String SRC_TEST_RESOURCES = "src/test/resources";
 
     public static void saveCU(String className, CompilationUnit cu) throws IOException {
-        Helper.writeFile(Helper.createFile(SRC_TEST_RESOURCES, "com.ampaiva.out", className), cu.toString());
+        Helper2.writeFile(Helper.createFile(SRC_TEST_RESOURCES, "com.ampaiva.out", className), cu.toString());
     }
 
     public static File getCU(String className) throws ParseException {

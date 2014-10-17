@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.ampaiva.hlo.util.Helper;
+import com.ampaiva.hlo.util.Helper2;
 
 public final class Parser {
     public static CompilationUnit parserClass(File fileIn) throws ParseException {
@@ -159,7 +160,7 @@ public final class Parser {
             inlineGetSet(cu);
             NameExpr name = cu.getPackage().getName();
             name.setName(packageOut.substring(4, packageOut.length()));
-            Helper.writeFile(Helper.createFile(sourceFolder, packageOut,
+            Helper2.writeFile(Helper.createFile(sourceFolder, packageOut,
                     file.getName().substring(0, file.getName().length() - 5)), cu.toString());
         }
     }

@@ -27,17 +27,14 @@ import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,15 +172,6 @@ public final class Helper {
             return ret.toString();
         } finally {
             reader.close();
-        }
-    }
-
-    public static void writeFile(File file, String contents) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-        try {
-            writer.write(contents);
-        } finally {
-            writer.close();
         }
     }
 
