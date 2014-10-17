@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.ampaiva.hlo.util.Helper;
+import com.ampaiva.hlo.util.Helper2;
 
 public class ParserTest {
 
@@ -46,7 +47,7 @@ public class ParserTest {
     }
 
     private void saveCU(String className, CompilationUnit cu) throws IOException {
-        Helper.writeFile(Helper.createFile(SRC_TEST_RESOURCES, "com.ampaiva.out", className), cu.toString());
+        Helper2.writeFile(Helper.createFile(SRC_TEST_RESOURCES, "com.ampaiva.out", className), cu.toString());
     }
 
     private CompilationUnit getCU(String className) throws ParseException {
@@ -61,8 +62,9 @@ public class ParserTest {
     public void testChangeToFinal() throws ParseException, IOException {
         String[] classNames = { "DuckTestClass", "WoodDuckTestClass" };
         List<CompilationUnit> cus = new ArrayList<CompilationUnit>(2);
-        for (String className : classNames)
+        for (String className : classNames) {
             cus.add(getCU(className));
+        }
 
         Parser.changeToFinal(cus);
         for (CompilationUnit cu : cus) {
