@@ -9,19 +9,22 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.ampaiva.hlo.util.SourceColector;
+
 public class MetricsColectorTest {
 
     @Test
     public void testGetMetrics() throws ParseException, FileNotFoundException, IOException {
-        MetricsColector colector = new MetricsColector().addFolder("src/test/resources/com/ampaiva/in/cm");
+        MetricsColector colector = new MetricsColector(new SourceColector().addFolder(
+                "src/test/resources/com/ampaiva/in/cm").getSources());
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(5, concernMetricsTable.getHash().size());
     }
 
     @Test
     public void testGetMetricsOfSpecific() throws ParseException, FileNotFoundException, IOException {
-        MetricsColector colector = new MetricsColector().addFiles("src/test/resources/com/ampaiva/in/cm",
-                "AddressRepositoryRDB");
+        MetricsColector colector = new MetricsColector(new SourceColector().addFiles(
+                "src/test/resources/com/ampaiva/in/cm", "AddressRepositoryRDB").getSources());
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
         assertEquals(32, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getMetric());
@@ -36,8 +39,8 @@ public class MetricsColectorTest {
         sb.append("\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        MetricsColector colector = new MetricsColector().addInputStream(new ByteArrayInputStream(sb.toString()
-                .getBytes()));
+        MetricsColector colector = new MetricsColector(new SourceColector().addInputStream(
+                new ByteArrayInputStream(sb.toString().getBytes())).getSources());
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
     }
