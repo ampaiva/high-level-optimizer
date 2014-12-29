@@ -84,11 +84,11 @@ public final class Helper {
     public static String convertInputStream2String(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder out = new StringBuilder();
-        String newLine = System.getProperty("line.separator");
-        String line;
-        while ((line = reader.readLine()) != null) {
-            out.append(line);
-            out.append(newLine);
+        byte[] buffer = new byte[4096];
+        int readed = 0;
+
+        while ((readed = in.read(buffer)) > 0) {
+            out.append(new String(buffer, 0, readed));
         }
         return out.toString();
     }

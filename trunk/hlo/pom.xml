@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ampaiva.hlo</groupId>
   <artifactId>hlo</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>High Level Optimizer</name>
   <dependencies>
       <dependency>
