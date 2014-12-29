@@ -82,7 +82,6 @@ public final class Helper {
     }
 
     public static String convertInputStream2String(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder out = new StringBuilder();
         byte[] buffer = new byte[4096];
         int readed = 0;
