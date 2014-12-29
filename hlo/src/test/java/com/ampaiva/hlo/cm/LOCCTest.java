@@ -78,7 +78,7 @@ public class LOCCTest {
         assertEquals(2, concernMetricNode.getBeginLine());
         assertEquals(2, concernMetricNode.getEndLine());
         assertEquals(51, concernMetricNode.getEndColumn());
-        assertEquals(27 + 1 + 29, concernMetricNode.getOffset());
+        assertEquals(27 + 1 + 28, concernMetricNode.getOffset());
         assertEquals(23, concernMetricNode.getLength());
     }
 

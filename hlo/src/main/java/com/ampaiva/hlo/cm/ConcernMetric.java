@@ -28,6 +28,7 @@ public abstract class ConcernMetric {
         }
     }
 
+    // TODO: getKey should be outside this class
     private void parseSource() throws ParseException {
         InputStream in = Helper.convertString2InputStream(source);
         CompilationUnit cu = Helper.parserClass(in);
@@ -38,6 +39,7 @@ public abstract class ConcernMetric {
                     sbKey.append(".");
                 }
                 sbKey.append(classOrInterface.getName());
+                // TODO: this class should start from this interface
                 ConcernMetric.this.countObject(classOrInterface.getMembers());
                 return null;
             }
