@@ -39,7 +39,7 @@ public class MetricsColectorTest {
         sb.append("\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        MetricsColector colector = new MetricsColector(new SourceColector().addInputStream(
+        MetricsColector colector = new MetricsColector(new SourceColector().addInputStream("",
                 new ByteArrayInputStream(sb.toString().getBytes())).getSources());
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());

@@ -5,12 +5,12 @@ import japa.parser.ParseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class SourceColector {
-    private final List<String> sources = new ArrayList<String>();
+    private final Map<String, String> sources = new HashMap<String, String>();
 
     public SourceColector addFolder(String sourceFolder) throws ParseException, FileNotFoundException, IOException {
         return addFiles(sourceFolder, ".*");
@@ -26,17 +26,18 @@ public class SourceColector {
         ProjectVisitor projectVisitor = new ProjectVisitor(sourceFolder, new String[] { "" }, classRegEx,
                 searchChildrenFolders);
         for (Entry<String, String> entry : projectVisitor.getCUS().entrySet()) {
-            sources.add(entry.getValue());
+            sources.put(entry.getKey(), entry.getValue());
         }
         return this;
     }
 
-    public SourceColector addInputStream(InputStream stringBufferInputStream) throws ParseException, IOException {
-        sources.add(Helper.convertInputStream2String(stringBufferInputStream));
+    public SourceColector addInputStream(String key, InputStream stringBufferInputStream) throws ParseException,
+            IOException {
+        sources.put(key, Helper.convertInputStream2String(stringBufferInputStream));
         return this;
     }
 
-    public List<String> getSources() {
+    public Map<String, String> getSources() {
         return sources;
     }
 }
