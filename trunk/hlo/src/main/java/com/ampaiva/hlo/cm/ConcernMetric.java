@@ -17,10 +17,11 @@ import com.ampaiva.hlo.util.Helper;
 public abstract class ConcernMetric {
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
     private final String source;
-    private String key;
+    private final String key;
 
-    public ConcernMetric(InputStream in) {
+    public ConcernMetric(String key, InputStream in) {
         try {
+            this.key = key;
             this.source = Helper.convertInputStream2String(in);
             parseSource();
         } catch (Exception e) {
@@ -50,7 +51,6 @@ public abstract class ConcernMetric {
             sbKey.append(cu.getPackage().getName());
         }
         mva.visit(cu, sbKey);
-        key = sbKey.toString();
     }
 
     public String getSource() {

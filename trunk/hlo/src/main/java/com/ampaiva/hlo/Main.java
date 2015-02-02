@@ -8,7 +8,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -23,7 +25,8 @@ import com.ampaiva.hlo.cm.MetricsColector;
 import com.ampaiva.hlo.util.Helper;
 
 public class Main {
-    public MetricsColector getMetrics(List<String> sources) throws ParseException, FileNotFoundException, IOException {
+    public MetricsColector getMetrics(Map<String, String> sources) throws ParseException, FileNotFoundException,
+            IOException {
         MetricsColector metricsColector = new MetricsColector(sources);
         printMetrics(metricsColector);
         return metricsColector;
@@ -61,8 +64,8 @@ public class Main {
         }
     }
 
-    private List<String> getFilesInZip(String zipFilePath) throws IOException {
-        List<String> sources = new ArrayList<String>();
+    private Map<String, String> getFilesInZip(String zipFilePath) throws IOException {
+        Map<String, String> sources = new HashMap<String, String>();
         ZipFile zipFile = new ZipFile(zipFilePath);
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
@@ -71,7 +74,7 @@ public class Main {
                 continue;
             }
             System.out.println(entry.getName());
-            sources.add(Helper.convertInputStream2String(zipFile.getInputStream(entry)));
+            sources.put(entry.getName(), Helper.convertInputStream2String(zipFile.getInputStream(entry)));
         }
         zipFile.close();
         return sources;

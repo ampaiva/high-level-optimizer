@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.util.List;
 
 public class LOCC extends ConcernMetric {
-    public LOCC(InputStream source) {
-        super(source);
+    public LOCC(String key, InputStream source) {
+        super(key, source);
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {

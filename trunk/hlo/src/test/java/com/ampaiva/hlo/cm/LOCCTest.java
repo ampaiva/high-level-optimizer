@@ -15,11 +15,11 @@ import com.ampaiva.hlo.util.TestUtils;
 public class LOCCTest {
 
     private LOCC getLOCC(String className) throws ParseException, FileNotFoundException {
-        return new LOCC(getCU(className));
+        return new LOCC("Test.java", getCU(className));
     }
 
     private LOCC getLOCCBySource(String source) throws ParseException {
-        return new LOCC(Helper.convertString2InputStream(source));
+        return new LOCC("Test.java", Helper.convertString2InputStream(source));
     }
 
     private InputStream getCU(String className) throws ParseException, FileNotFoundException {
@@ -299,11 +299,11 @@ public class LOCCTest {
 
     @Test
     public void testGetKeyOfInputStreamNoPackage() throws ParseException {
-        assertEquals("C", getLOCCBySource("class C {}").getKey());
+        assertEquals("Test.java", getLOCCBySource("class C {}").getKey());
     }
 
     @Test
     public void testGetKeyOfInputStream() throws ParseException {
-        assertEquals("com.ampaiva.C", getLOCCBySource("package com.ampaiva;\nclass C {}").getKey());
+        assertEquals("Test.java", getLOCCBySource("package com.ampaiva;\nclass C {}").getKey());
     }
 }
