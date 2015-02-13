@@ -22,11 +22,15 @@ public abstract class ConcernMetric {
     public ConcernMetric(String key, InputStream in) {
         try {
             this.key = key;
-            this.source = Helper.convertInputStream2String(in);
+            this.source = changeUnsupportedJavaFeatures(Helper.convertInputStream2String(in));
             parseSource();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Parser error of " + in + ":", e);
+            throw new IllegalArgumentException("Parser error of " + key + ":", e);
         }
+    }
+
+    private static String changeUnsupportedJavaFeatures(String source) {
+        return source.replace("<>", "");
     }
 
     // TODO: getKey should be outside this class
