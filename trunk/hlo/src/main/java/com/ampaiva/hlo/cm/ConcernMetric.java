@@ -3,6 +3,7 @@ package com.ampaiva.hlo.cm;
 import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
+import japa.parser.ast.expr.Expression;
 import japa.parser.ast.stmt.Statement;
 import japa.parser.ast.visitor.GenericVisitorAdapter;
 
@@ -18,12 +19,13 @@ public abstract class ConcernMetric {
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
     private final String source;
     private final String key;
+    protected final CompilationUnit cu;
 
     public ConcernMetric(String key, InputStream in) {
         try {
             this.key = key;
             this.source = changeUnsupportedJavaFeatures(Helper.convertInputStream2String(in));
-            parseSource();
+            this.cu = setCU();
         } catch (Exception e) {
             throw new IllegalArgumentException("Parser error of " + key + ":", e);
         }
@@ -33,10 +35,16 @@ public abstract class ConcernMetric {
         return source.replace("<>", "");
     }
 
+    protected void doParse() {
+        try {
+            parseSource();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Parser error of " + key + ":", e);
+        }
+    }
+
     // TODO: getKey should be outside this class
     private void parseSource() throws ParseException {
-        InputStream in = Helper.convertString2InputStream(source);
-        CompilationUnit cu = Helper.parserClass(in);
         final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
             @Override
             public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, StringBuilder sbKey) {
@@ -57,6 +65,11 @@ public abstract class ConcernMetric {
         mva.visit(cu, sbKey);
     }
 
+    private CompilationUnit setCU() throws ParseException {
+        InputStream in = Helper.convertString2InputStream(source);
+        return Helper.parserClass(in);
+    }
+
     public String getSource() {
         return source;
     }
@@ -74,15 +87,17 @@ public abstract class ConcernMetric {
     }
 
     protected void countObject(Object obj) {
+
         if (obj != null) {
             try {
                 if (obj instanceof List) {
                     countListObject((List<?>) obj);
                 } else {
                     invokeCountMethod(obj);
+                    handleNoCountMethodforType(obj);
                 }
             } catch (NoSuchMethodException e) {
-                handleNoCountMethodforType(obj, e);
+                handleNoCountMethodforType(obj);
             } catch (Exception e) {
                 throw new IllegalArgumentException(obj.toString() + ": " + e.toString(), e);
             }
@@ -97,10 +112,10 @@ public abstract class ConcernMetric {
         }
     }
 
-    private void handleNoCountMethodforType(Object obj, NoSuchMethodException e) {
+    private void handleNoCountMethodforType(Object obj) {
         List<Method> methods = Arrays.asList(obj.getClass().getDeclaredMethods());
         for (Method method : methods) {
-            getStatementsInvokingMethod(new Class[] { Statement.class, List.class }, obj, method);
+            getStatementsInvokingMethod(new Class[] { Expression.class, Statement.class, List.class }, obj, method);
         }
     }
 

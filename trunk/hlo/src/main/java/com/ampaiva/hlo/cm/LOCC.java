@@ -12,16 +12,15 @@ import java.util.List;
 public class LOCC extends ConcernMetric {
     public LOCC(String key, InputStream source) {
         super(key, source);
+        doParse();
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {
         countThrowsinNameExpr(obj.getThrows());
-        countObject(obj.getBody());
     }
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
         countThrowsinNameExpr(obj.getThrows());
-        countObject(obj.getBlock());
     }
 
     public void countThrowsinNameExpr(List<NameExpr> throws_) {
@@ -54,8 +53,6 @@ public class LOCC extends ConcernMetric {
                 tryStmt.getTryBlock().getBeginLine(), tryStmt.getTryBlock().getBeginColumn());
         getNodes().add(getSource(), tryStmt.getTryBlock().getEndLine(), tryStmt.getTryBlock().getEndColumn(),
                 tryStmt.getEndLine(), tryStmt.getEndColumn());
-
-        countObject(tryStmt.getTryBlock());
     }
 
     @Override
