@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ConcernCollection extends ConcernMetric {
+public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private static final String DOT = ".";
+    private final List<String> methodNames = new ArrayList<String>();
     private final List<List<String>> sequences = new ArrayList<List<String>>();
     private final HashMap<String, String> variables = new HashMap<String, String>();
 
@@ -25,16 +26,30 @@ public class ConcernCollection extends ConcernMetric {
         doParse();
     }
 
-    public void countConstructorDeclaration(ConstructorDeclaration obj) {
+    private void addSequence(String methodName) {
+        StringBuilder sb = new StringBuilder();
+        if (cu.getPackage() != null) {
+            sb.append(cu.getPackage().getName()).append(DOT);
+        }
+        sb.append(cu.getTypes().get(0).getName()).append(DOT);
+        sb.append(methodName);
+        methodNames.add(sb.toString());
         sequences.add(new ArrayList<String>());
     }
 
+    public void countConstructorDeclaration(ConstructorDeclaration obj) {
+        addSequence(obj.getName());
+    }
+
     public void countMethodDeclaration(MethodDeclaration obj) {
-        sequences.add(new ArrayList<String>());
+        addSequence(obj.getName());
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
+        if (sequences.size() == 0) {
+            addSequence("");
+        }
         List<String> lastSequence = sequences.get(sequences.size() - 1);
         String importStr = getImport(obj.getType().toString());
         StringBuilder fullName = new StringBuilder();
@@ -50,6 +65,9 @@ public class ConcernCollection extends ConcernMetric {
 
     public void countMethodCallExpr(MethodCallExpr obj) {
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
+        if (sequences.size() == 0) {
+            addSequence("");
+        }
         List<String> lastSequence = sequences.get(sequences.size() - 1);
         lastSequence.add(getFullName(obj.getName(), obj.getScope()));
     }
@@ -139,7 +157,11 @@ public class ConcernCollection extends ConcernMetric {
 
     @Override
     public String toString() {
-        return "ConcernCollection";
+        return getKey();
+    }
+
+    public List<String> getMethodNames() {
+        return methodNames;
     }
 
     public List<List<String>> getSequences() {

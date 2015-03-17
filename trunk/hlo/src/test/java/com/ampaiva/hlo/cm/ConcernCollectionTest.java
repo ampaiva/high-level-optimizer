@@ -32,6 +32,11 @@ public class ConcernCollectionTest {
         assertEquals(1, sequences.size());
         List<String> sequence0 = sequences.get(0);
         assertEquals(0, sequence0.size());
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("SimpleClass.SimpleClass", methodNames.get(0));
     }
 
     @Test
@@ -42,13 +47,18 @@ public class ConcernCollectionTest {
         sb.append("       System.out.println();\n");
         sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
         List<String> sequence0 = sequences.get(0);
         assertEquals(1, sequence0.size());
         assertEquals("System.out.println", sequence0.get(0));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("SimpleClass.SimpleClass", methodNames.get(0));
     }
 
     @Test
@@ -64,14 +74,23 @@ public class ConcernCollectionTest {
         sb.append("void foo() {\n");
         sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
-        assertEquals(1, sequences.size());
+        assertEquals(2, sequences.size());
         List<String> sequence0 = sequences.get(0);
         assertEquals(2, sequence0.size());
         assertEquals("com.ampaiva.test.SimpleClass.foo", sequence0.get(0));
         assertEquals("java.lang.System.out.println", sequence0.get(1));
+
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(0, sequence1.size());
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(0));
+        assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(1));
     }
 
     @Test
@@ -87,14 +106,23 @@ public class ConcernCollectionTest {
         sb.append("void foo() {\n");
         sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
-        assertEquals(1, sequences.size());
+        assertEquals(2, sequences.size());
         List<String> sequence0 = sequences.get(0);
         assertEquals(2, sequence0.size());
         assertEquals("com.ampaiva.other.FooClass.FooClass", sequence0.get(0));
         assertEquals("com.ampaiva.other.FooClass.foo", sequence0.get(1));
+
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(0, sequence1.size());
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(0));
+        assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(1));
     }
 
     @Test
@@ -113,7 +141,7 @@ public class ConcernCollectionTest {
         sb.append("       variable.foo();\n");
         sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(2, sequences.size());
@@ -125,6 +153,12 @@ public class ConcernCollectionTest {
         assertEquals(2, sequence1.size());
         assertEquals("com.ampaiva.other.FooClass2.FooClass2", sequence1.get(0));
         assertEquals("com.ampaiva.other.FooClass2.foo", sequence1.get(1));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(0));
+        assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(1));
     }
 
     @Test
@@ -136,10 +170,8 @@ public class ConcernCollectionTest {
         sb.append("       com.ampaiva.other.FooClass variable = new com.ampaiva.other.FooClass();\n");
         sb.append("       variable.foo();\n");
         sb.append("    }\n");
-        sb.append("void foo() {\n");
-        sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -149,4 +181,45 @@ public class ConcernCollectionTest {
         assertEquals("com.ampaiva.other.FooClass.foo", sequence0.get(1));
     }
 
+    @Test
+    public void testgetSequencesObjCreationInitClass() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("       com.ampaiva.other.FooClass variable = new com.ampaiva.other.FooClass();\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(1, sequences.size());
+        List<String> sequence0 = sequences.get(0);
+        assertEquals(1, sequence0.size());
+        assertEquals("com.ampaiva.other.FooClass.FooClass", sequence0.get(0));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+    }
+
+    @Test
+    public void testgetSequencesMethodCallInitClass() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("      private String[] fooStr = {com.ampaiva.other.FooClass.foo()};\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(1, sequences.size());
+        List<String> sequence0 = sequences.get(0);
+        assertEquals(1, sequence0.size());
+        assertEquals("com.ampaiva.other.FooClass.foo", sequence0.get(0));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+    }
 }
