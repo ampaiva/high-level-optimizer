@@ -27,7 +27,7 @@ public class MetricsColectorTest {
                 "src/test/resources/com/ampaiva/in/cm", "AddressRepositoryRDB").getSources());
         ConcernMetricsTable concernMetricsTable = colector.getMetrics();
         assertEquals(1, concernMetricsTable.getHash().size());
-        assertEquals(32, concernMetricsTable.getHash().entrySet().iterator().next().getValue().getMetric());
+        assertEquals(32, concernMetricsTable.getConcernMetric(LOCC.class).getMetric());
     }
 
     @Test

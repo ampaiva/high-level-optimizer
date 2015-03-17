@@ -56,6 +56,15 @@ public class ConcernMetricNodeTest {
     }
 
     @Test
+    public void testGetPositionandOffsetL1C1CR() {
+        //                ....
+        String source = "1\r2";
+        ConcernMetricNode concernMetricNode = new ConcernMetricNode(source, 2, 1, 2, 1);
+        assertEquals(3, concernMetricNode.getOffset());
+        assertEquals(1, concernMetricNode.getLength());
+    }
+
+    @Test
     public void testGetPositionandOffsetL1C2() {
         //                ....
         String source = "123456789";

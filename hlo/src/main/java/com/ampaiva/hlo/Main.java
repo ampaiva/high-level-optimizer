@@ -34,10 +34,12 @@ public class Main {
 
     private void printMetrics(MetricsColector metricsColector) throws ParseException {
         TreeSet<String> set = new TreeSet<String>();
-        for (Entry<String, ConcernMetric> entry : metricsColector.getMetrics().getHash().entrySet()) {
+        for (Entry<String, List<ConcernMetric>> entry : metricsColector.getMetrics().getHash().entrySet()) {
             String key = entry.getKey().split("\\.")[entry.getKey().split("\\.").length - 1];
-            int value = entry.getValue().getMetric();
-            set.add(key + "=" + value);
+            for (ConcernMetric concernMetric : entry.getValue()) {
+                int value = concernMetric.getMetric();
+                set.add(key + "=" + value);
+            }
         }
         for (String string : set) {
             System.out.println(string);
