@@ -6,15 +6,9 @@ import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.stmt.ThrowStmt;
 import japa.parser.ast.stmt.TryStmt;
 
-import java.io.InputStream;
 import java.util.List;
 
 public class LOCC extends ConcernMetric {
-    public LOCC(String key, InputStream source) {
-        super(key, source);
-        doParse();
-    }
-
     public void countMethodDeclaration(MethodDeclaration obj) {
         countThrowsinNameExpr(obj.getThrows());
     }

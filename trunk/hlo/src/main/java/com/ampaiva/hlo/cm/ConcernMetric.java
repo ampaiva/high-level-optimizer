@@ -15,35 +15,33 @@ import java.util.List;
 
 import com.ampaiva.hlo.util.Helper;
 
-public abstract class ConcernMetric {
+public abstract class ConcernMetric implements IConcernMetric {
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
-    private final String source;
-    private final String key;
-    protected final CompilationUnit cu;
-
-    public ConcernMetric(String key, InputStream in) {
-        try {
-            this.key = key;
-            this.source = changeUnsupportedJavaFeatures(Helper.convertInputStream2String(in));
-            this.cu = setCU();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Parser error of " + key + ":", e);
-        }
-    }
+    protected CompilationUnit cu;
+    private String source;
 
     private static String changeUnsupportedJavaFeatures(String source) {
         return source.replace("<>", "");
     }
 
-    protected void doParse() {
+    public void parse(String source) {
         try {
-            parseSource();
+            this.source = changeUnsupportedJavaFeatures(source);
+            cu = setCU();
+            doParse();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Parser error of " + key + ":", e);
+            throw new IllegalArgumentException("Parser error of: ", e);
         }
     }
 
-    // TODO: getKey should be outside this class
+    private void doParse() {
+        try {
+            parseSource();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Parser error: ", e);
+        }
+    }
+
     private void parseSource() throws ParseException {
         final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
             @Override
@@ -70,12 +68,9 @@ public abstract class ConcernMetric {
         return Helper.parserClass(in);
     }
 
+    //TODO: this method should not exist. Source should be a parameter of all count methods
     public String getSource() {
         return source;
-    }
-
-    public String getKey() {
-        return key;
     }
 
     public int getMetric() {

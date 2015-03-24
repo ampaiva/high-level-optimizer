@@ -4,9 +4,10 @@ import static org.junit.Assert.assertEquals;
 import japa.parser.ParseException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.IOException;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.ampaiva.hlo.util.Helper;
@@ -14,30 +15,54 @@ import com.ampaiva.hlo.util.TestUtils;
 
 public class LOCCTest {
 
-    private LOCC getLOCC(String className) throws ParseException, FileNotFoundException {
-        return new LOCC("Test.java", getCU(className));
+    private LOCC locc;
+
+    /**
+     * Setup mocks before each test.
+     * 
+     * @throws Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+        locc = new LOCC();
     }
 
-    private LOCC getLOCCBySource(String source) throws ParseException {
-        return new LOCC("Test.java", Helper.convertString2InputStream(source));
+    /**
+     * Verifies all mocks after each test.
+     */
+    @After()
+    public void tearDown() {
+        locc = null;
     }
 
-    private InputStream getCU(String className) throws ParseException, FileNotFoundException {
+    private LOCC getLOCC(String className) throws ParseException, IOException {
+        String source = getCU(className);
+        locc.parse(source);
+        return locc;
+    }
+
+    private ConcernMetric getLOCCBySource(String source) {
+        locc.parse(source);
+        return locc;
+    }
+
+    private String getCU(String className) throws ParseException, IOException {
         File file = TestUtils.getCU("cm", className);
-        return Helper.convertFile2InputStream(file);
+        return Helper.convertFile2String(file);
     }
 
     @Test
     public void testGetMetricInOneLineBrace0LineAfterTry() throws ParseException {
-        assertEquals(1, getLOCCBySource("class C {{try{}catch (Exception e){}}}").getMetric());
+        locc.parse("class C {{try{}catch (Exception e){}}}");
+        assertEquals(1, locc.getMetric());
     }
 
     @Test
     public void testGetMetricInOneLineBrace0LineAfterTry1LineBeforeCatch() throws ParseException {
         final String source = "class C {{try{\n// Comment\n//\n\n}catch (Exception e){}}}";
-        LOCC loccBySource = getLOCCBySource(source);
-        assertEquals(2, loccBySource.getMetric());
-        ConcernMetricNodes nodes = loccBySource.getNodes();
+        locc.parse(source);
+        assertEquals(2, locc.getMetric());
+        ConcernMetricNodes nodes = locc.getNodes();
         assertEquals(2, nodes.size());
         ConcernMetricNode actual = nodes.get(0);
         assertEquals(11, actual.getOffset());
@@ -47,9 +72,9 @@ public class LOCCTest {
     @Test
     public void testGetMetricImportWithBlankLines() throws ParseException {
         final String source = "package com.ampaiva.in;\n\n\n\n\n\npublic class AddressRepositoryRDB2 {\npublic void insert(Address end) throws ObjectAlreadyInsertedException {}}\n";
-        LOCC loccBySource = getLOCCBySource(source);
-        assertEquals(1, loccBySource.getMetric());
-        ConcernMetricNodes nodes = loccBySource.getNodes();
+        locc.parse(source);
+        assertEquals(1, locc.getMetric());
+        ConcernMetricNodes nodes = locc.getNodes();
         assertEquals(1, nodes.size());
     }
 
@@ -61,7 +86,9 @@ public class LOCCTest {
         sb.append("\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -72,9 +99,9 @@ public class LOCCTest {
         sb.append("        throw new RuntimeException(\"1232\");\n");
         sb.append("    }\n");
         sb.append("}");
-        LOCC loccBySource = getLOCCBySource(sb.toString());
-        assertEquals(2, loccBySource.getMetric());
-        ConcernMetricNode concernMetricNode = loccBySource.getNodes().get(0);
+        locc.parse(sb.toString());
+        assertEquals(2, locc.getMetric());
+        ConcernMetricNode concernMetricNode = locc.getNodes().get(0);
         assertEquals(2, concernMetricNode.getBeginLine());
         assertEquals(2, concernMetricNode.getEndLine());
         assertEquals(51, concernMetricNode.getEndColumn());
@@ -90,7 +117,8 @@ public class LOCCTest {
         sb.append("x();\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -105,7 +133,8 @@ public class LOCCTest {
         sb.append("x();\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -116,7 +145,8 @@ public class LOCCTest {
         sb.append("x();\n");
         sb.append("x();}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -128,7 +158,8 @@ public class LOCCTest {
         sb.append("x();\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(2, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -144,27 +175,36 @@ public class LOCCTest {
         sb.append("x();\n");
         sb.append("}catch (Exception e){}}");
         sb.append("}");
-        assertEquals(4, getLOCCBySource(sb.toString()).getMetric());
+        locc.parse(sb.toString());
+        assertEquals(4, locc.getMetric());
     }
 
     @Test
     public void testGetMetricIn2LinesBrace1LineAfterTry() throws ParseException {
-        assertEquals(2, getLOCCBySource("class C {{try\n{}catch (Exception e){}}}").getMetric());
+        String source = "class C {{try\n{}catch (Exception e){}}}";
+        locc.parse(source);
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
     public void testGetMetricIn3LinesBrace2LinesAfterTry() throws ParseException {
-        assertEquals(3, getLOCCBySource("class C {{try\n\n{}catch (Exception e){}}}").getMetric());
+        String source = "class C {{try\n\n{}catch (Exception e){}}}";
+        locc.parse(source);
+        assertEquals(3, locc.getMetric());
     }
 
     @Test
     public void testGetMetricIn4LinesBrace3LinesAfterTry() throws ParseException {
-        assertEquals(4, getLOCCBySource("class C {{try\n\n\n{}catch (Exception e){}}}").getMetric());
+        String source = "class C {{try\n\n\n{}catch (Exception e){}}}";
+        locc.parse(source);
+        assertEquals(4, locc.getMetric());
     }
 
     @Test
     public void testGetMetricIn2LinesBrace0LineAfterTry() throws ParseException {
-        assertEquals(2, getLOCCBySource("class C {{try{\nx();}catch (Exception e){}}}").getMetric());
+        String source = "class C {{try{\nx();}catch (Exception e){}}}";
+        locc.parse(source);
+        assertEquals(2, locc.getMetric());
     }
 
     @Test
@@ -278,32 +318,22 @@ public class LOCCTest {
     }
 
     @Test
-    public void testGetMetricinWithVariousEH() throws ParseException, FileNotFoundException {
+    public void testGetMetricinWithVariousEH() throws ParseException, IOException {
         assertEquals(8, getLOCC("MethodWithVariousEH").getMetric());
     }
 
     @Test
-    public void testGetMetricMethodWithEHCatchAfterBrace() throws ParseException, FileNotFoundException {
+    public void testGetMetricMethodWithEHCatchAfterBrace() throws ParseException, IOException {
         assertEquals(8, getLOCC("MethodWithEHCatchAfterBrace").getMetric());
     }
 
     @Test
-    public void testGetMetricMethodWithEHInsideTry() throws ParseException, FileNotFoundException {
+    public void testGetMetricMethodWithEHInsideTry() throws ParseException, IOException {
         assertEquals(12, getLOCC("MethodWithEHInsideTry").getMetric());
     }
 
     @Test
-    public void testGetMetricinMethodThrowsRuntimeException() throws ParseException, FileNotFoundException {
+    public void testGetMetricinMethodThrowsRuntimeException() throws ParseException, IOException {
         assertEquals(1, getLOCC("MethodThrowsRuntimeException").getMetric());
-    }
-
-    @Test
-    public void testGetKeyOfInputStreamNoPackage() throws ParseException {
-        assertEquals("Test.java", getLOCCBySource("class C {}").getKey());
-    }
-
-    @Test
-    public void testGetKeyOfInputStream() throws ParseException {
-        assertEquals("Test.java", getLOCCBySource("package com.ampaiva;\nclass C {}").getKey());
     }
 }

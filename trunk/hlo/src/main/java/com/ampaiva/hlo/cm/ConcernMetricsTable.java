@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ConcernMetricsTable {
-    private final HashMap<String, List<ConcernMetric>> hash = new HashMap<String, List<ConcernMetric>>();
+    private final HashMap<String, List<IConcernMetric>> hash = new HashMap<String, List<IConcernMetric>>();
 
-    public HashMap<String, List<ConcernMetric>> getHash() {
+    public HashMap<String, List<IConcernMetric>> getHash() {
         return hash;
     }
 
-    public ConcernMetric getConcernMetric(Class<?> cls) {
+    public IConcernMetric getConcernMetric(Class<?> cls) {
 
-        for (ConcernMetric concernMetric : getHash().entrySet().iterator().next().getValue()) {
+        for (IConcernMetric concernMetric : getHash().entrySet().iterator().next().getValue()) {
             if (concernMetric.getClass().isAssignableFrom(cls)) {
                 return concernMetric;
             }

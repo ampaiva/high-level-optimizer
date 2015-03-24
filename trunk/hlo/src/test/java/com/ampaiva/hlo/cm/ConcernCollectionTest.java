@@ -6,14 +6,35 @@ import japa.parser.ParseException;
 
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-
-import com.ampaiva.hlo.util.Helper;
 
 public class ConcernCollectionTest {
 
+    private ConcernCollection loccBySource;
+
+    /**
+     * Setup mocks before each test.
+     * 
+     * @throws Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+        loccBySource = new ConcernCollection();
+    }
+
+    /**
+     * Verifies all mocks after each test.
+     */
+    @After()
+    public void tearDown() {
+        loccBySource = null;
+    }
+
     private ConcernCollection getLOCCBySource(String source) throws ParseException {
-        return new ConcernCollection("Test.java", Helper.convertString2InputStream(source));
+        loccBySource.parse(source);
+        return loccBySource;
     }
 
     @Test
@@ -24,7 +45,6 @@ public class ConcernCollectionTest {
         sb.append("    }\n");
         sb.append("}");
         ConcernCollection concernCollection = getLOCCBySource(sb.toString());
-        assertEquals("Test.java", concernCollection.getKey());
         ConcernMetricNodes nodes = concernCollection.getNodes();
         assertEquals(0, nodes.size());
         List<List<String>> sequences = concernCollection.getSequences();
