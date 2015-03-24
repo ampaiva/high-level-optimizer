@@ -2,31 +2,31 @@ package com.ampaiva.hlo.cm;
 
 import japa.parser.ParseException;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map.Entry;
 
-import com.ampaiva.hlo.util.Helper;
-
 public class MetricsColector {
-    private final Map<String, String> sources;
+    private final IMetricsSource metricsSource;
+    private final ICodeSource codeSource;
 
-    public MetricsColector(final Map<String, String> sources) {
-        this.sources = sources;
+    public MetricsColector(IMetricsSource metricsSource, ICodeSource codeSource) {
+        this.metricsSource = metricsSource;
+        this.codeSource = codeSource;
 
     }
 
-    public ConcernMetricsTable getMetrics() throws ParseException {
+    public ConcernMetricsTable getMetrics() throws ParseException, IOException {
         ConcernMetricsTable concernMetricsTable = new ConcernMetricsTable();
-        for (Entry<String, String> source : sources.entrySet()) {
-            LOCC locc = new LOCC(source.getKey(), Helper.convertString2InputStream(source.getValue()));
-            ConcernCollection concernCollection = new ConcernCollection(source.getKey(),
-                    Helper.convertString2InputStream(source.getValue()));
-            concernMetricsTable.getHash().put(locc.getKey(),
-                    Arrays.asList(new ConcernMetric[] { locc, concernCollection }));
+        for (Entry<String, String> entry : codeSource.getCodeSource().entrySet()) {
+            String key = entry.getKey();
+            String source = entry.getValue();
+            List<IConcernMetric> concernMetrics = metricsSource.getConcernMetrics();
+            for (IConcernMetric concernMetric : concernMetrics) {
+                concernMetric.parse(source);
+            }
+            concernMetricsTable.getHash().put(key, concernMetrics);
         }
         return concernMetricsTable;
-
     }
-
 }

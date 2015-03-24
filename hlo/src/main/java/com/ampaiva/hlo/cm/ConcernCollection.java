@@ -9,7 +9,6 @@ import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.expr.ObjectCreationExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +19,6 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     private final List<String> methodNames = new ArrayList<String>();
     private final List<List<String>> sequences = new ArrayList<List<String>>();
     private final HashMap<String, String> variables = new HashMap<String, String>();
-
-    public ConcernCollection(String key, InputStream source) {
-        super(key, source);
-        doParse();
-    }
 
     private void addSequence(String methodName) {
         StringBuilder sb = new StringBuilder();
@@ -155,11 +149,6 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         return fullName.toString();
     }
 
-    @Override
-    public String toString() {
-        return getKey();
-    }
-
     public List<String> getMethodNames() {
         return methodNames;
     }
@@ -167,4 +156,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     public List<List<String>> getSequences() {
         return sequences;
     }
+
+    @Override
+    public String toString() {
+        return "ConcernCollection [methodNames=" + methodNames + "]";
+    }
+
 }

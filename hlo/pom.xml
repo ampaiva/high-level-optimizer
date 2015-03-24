@@ -20,5 +20,10 @@
       	<artifactId>javaparser</artifactId>
       	<version>1.0.8</version>
       </dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>3.2</version>
+		</dependency>
   </dependencies>
 </project>
