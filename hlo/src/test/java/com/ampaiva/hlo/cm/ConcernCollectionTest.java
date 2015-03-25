@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class ConcernCollectionTest {
 
-    private ConcernCollection loccBySource;
+    private ConcernCollection concernCollection;
 
     /**
      * Setup mocks before each test.
@@ -21,7 +21,7 @@ public class ConcernCollectionTest {
      */
     @Before
     public void setUp() throws Exception {
-        loccBySource = new ConcernCollection();
+        concernCollection = new ConcernCollection();
     }
 
     /**
@@ -29,12 +29,12 @@ public class ConcernCollectionTest {
      */
     @After()
     public void tearDown() {
-        loccBySource = null;
+        concernCollection = null;
     }
 
-    private ConcernCollection getLOCCBySource(String source) throws ParseException {
-        loccBySource.parse(source);
-        return loccBySource;
+    private ConcernCollection getCCBySource(String source) throws ParseException {
+        concernCollection.parse(source);
+        return concernCollection;
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ConcernCollectionTest {
         sb.append("    public SimpleClass(){\n");
         sb.append("    }\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
         ConcernMetricNodes nodes = concernCollection.getNodes();
         assertEquals(0, nodes.size());
         List<List<String>> sequences = concernCollection.getSequences();
@@ -67,7 +67,7 @@ public class ConcernCollectionTest {
         sb.append("       System.out.println();\n");
         sb.append("    }\n");
         sb.append("}");
-        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -94,7 +94,7 @@ public class ConcernCollectionTest {
         sb.append("void foo() {\n");
         sb.append("    }\n");
         sb.append("}");
-        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(2, sequences.size());
@@ -126,7 +126,7 @@ public class ConcernCollectionTest {
         sb.append("void foo() {\n");
         sb.append("    }\n");
         sb.append("}");
-        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(2, sequences.size());
@@ -161,7 +161,7 @@ public class ConcernCollectionTest {
         sb.append("       variable.foo();\n");
         sb.append("    }\n");
         sb.append("}");
-        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(2, sequences.size());
@@ -191,7 +191,7 @@ public class ConcernCollectionTest {
         sb.append("       variable.foo();\n");
         sb.append("    }\n");
         sb.append("}");
-        IMethodCalls concernCollection = getLOCCBySource(sb.toString());
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -208,7 +208,7 @@ public class ConcernCollectionTest {
         sb.append("public class SimpleClass {\n");
         sb.append("       com.ampaiva.other.FooClass variable = new com.ampaiva.other.FooClass();\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -229,7 +229,7 @@ public class ConcernCollectionTest {
         sb.append("public class SimpleClass {\n");
         sb.append("      private String[] fooStr = {com.ampaiva.other.FooClass.foo()};\n");
         sb.append("}");
-        ConcernCollection concernCollection = getLOCCBySource(sb.toString());
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -241,5 +241,50 @@ public class ConcernCollectionTest {
         assertNotNull(methodNames);
         assertEquals(sequences.size(), methodNames.size());
         assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+    }
+
+    @Test
+    public void testCatchVariable() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public SimpleClass(){\n");
+        sb.append("      try{\n");
+        sb.append("         foo();\n");
+        sb.append("      }\n");
+        sb.append("      catch(ServiceLocatorException ne){\n");
+        sb.append("         ne.getMessage();\n");
+        sb.append("      }\n");
+        sb.append("    }\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(1, sequences.size());
+        List<String> sequence0 = sequences.get(0);
+        assertEquals(2, sequence0.size());
+        assertEquals("com.ampaiva.test.SimpleClass.foo", sequence0.get(0));
+        assertEquals("com.ampaiva.test.ServiceLocatorException.getMessage", sequence0.get(1));
+    }
+
+    @Test
+    public void testMethodParameter() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("import com.ampaiva.other.FooClass1;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public void foo(FooClass1 foo1, FooClass2 foo2){\n");
+        sb.append("      foo1.foo();");
+        sb.append("      foo2.foo();");
+        sb.append("    }\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(1, sequences.size());
+        List<String> sequence0 = sequences.get(0);
+        assertEquals(2, sequence0.size());
+        assertEquals("com.ampaiva.other.FooClass1.foo", sequence0.get(0));
+        assertEquals("com.ampaiva.test.FooClass2.foo", sequence0.get(1));
     }
 }
