@@ -3,11 +3,14 @@ package com.ampaiva.hlo.cm;
 import japa.parser.ast.ImportDeclaration;
 import japa.parser.ast.body.ConstructorDeclaration;
 import japa.parser.ast.body.MethodDeclaration;
+import japa.parser.ast.body.Parameter;
 import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.expr.Expression;
 import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.expr.ObjectCreationExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
+import japa.parser.ast.stmt.CatchClause;
+import japa.parser.ast.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,10 +36,22 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
         addSequence(obj.getName());
+        parametersToVariables(obj.getParameters());
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {
         addSequence(obj.getName());
+        parametersToVariables(obj.getParameters());
+    }
+
+    private void parametersToVariables(List<Parameter> parameters) {
+        if (parameters != null) {
+            for (int i = 0; i < parameters.size(); i++) {
+                Parameter parameter = parameters.get(i);
+                Type parameterType = parameter.getType();
+                variables.put(parameter.getId().getName(), parameterType.toString());
+            }
+        }
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
@@ -70,6 +85,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         for (VariableDeclarator variable : obj.getVars()) {
             variables.put(variable.getId().getName(), obj.getType().toString());
         }
+    }
+
+    public void countCatchClause(CatchClause obj) {
+        variables.put(obj.getExcept().getId().toString(), obj.getExcept().getType().toString());
     }
 
     private String getStaticImport(Expression scope) {
@@ -117,6 +136,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
             StringBuilder fullName = new StringBuilder();
             fullName.append(importStr);
             return fullName.toString();
+        } else if (clazz != null && !clazz.contains(DOT)) {
+            if (cu.getPackage() != null) {
+                clazz = cu.getPackage().getName() + DOT + clazz;
+            }
         }
         return clazz == null ? scope.toString() : clazz;
     }
