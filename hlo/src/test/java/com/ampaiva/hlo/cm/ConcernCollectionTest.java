@@ -57,6 +57,11 @@ public class ConcernCollectionTest {
         assertNotNull(methodNames);
         assertEquals(sequences.size(), methodNames.size());
         assertEquals("SimpleClass.SimpleClass", methodNames.get(0));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(1, sources.size());
+        assertEquals("public SimpleClass() {\n}", sources.get(0));
     }
 
     @Test
@@ -79,6 +84,11 @@ public class ConcernCollectionTest {
         assertNotNull(methodNames);
         assertEquals(sequences.size(), methodNames.size());
         assertEquals("SimpleClass.SimpleClass", methodNames.get(0));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(1, sources.size());
+        assertEquals("public SimpleClass() {\n    System.out.println();\n}", sources.get(0));
     }
 
     @Test
@@ -111,6 +121,12 @@ public class ConcernCollectionTest {
         assertEquals(sequences.size(), methodNames.size());
         assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(0));
         assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(1));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(methodNames.size(), sources.size());
+        assertEquals("public SimpleClass() {\n    foo();\n    out.println();\n}", sources.get(0));
+        assertEquals("void foo() {\n}", sources.get(1));
     }
 
     @Test

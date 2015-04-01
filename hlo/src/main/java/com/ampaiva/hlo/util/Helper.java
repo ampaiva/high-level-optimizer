@@ -69,7 +69,7 @@ public final class Helper {
         return parserClass(getFile(sourceFolder, clazz));
     }
 
-    public static InputStream convertFile2InputStream(File file) throws ParseException, FileNotFoundException {
+    public static InputStream convertFile2InputStream(File file) throws FileNotFoundException {
         return new FileInputStream(file);
     }
 
