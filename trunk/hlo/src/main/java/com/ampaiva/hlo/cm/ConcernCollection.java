@@ -15,13 +15,15 @@ import japa.parser.ast.type.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private static final String DOT = ".";
+    private final List<String> methodSources = new ArrayList<String>();
     private final List<String> methodNames = new ArrayList<String>();
     private final List<List<String>> sequences = new ArrayList<List<String>>();
-    private final HashMap<String, String> variables = new HashMap<String, String>();
+    private final Map<String, String> variables = new HashMap<String, String>();
 
     private void addSequence(String methodName) {
         StringBuilder sb = new StringBuilder();
@@ -35,11 +37,13 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
+        methodSources.add(obj.toString());
         addSequence(obj.getName());
         parametersToVariables(obj.getParameters());
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {
+        methodSources.add(obj.toString());
         addSequence(obj.getName());
         parametersToVariables(obj.getParameters());
     }
@@ -55,7 +59,6 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
-        getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
         if (sequences.size() == 0) {
             addSequence("");
         }
@@ -170,6 +173,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         }
         fullName.append(objName);
         return fullName.toString();
+    }
+
+    public List<String> getMethodSources() {
+        return methodSources;
     }
 
     public List<String> getMethodNames() {
