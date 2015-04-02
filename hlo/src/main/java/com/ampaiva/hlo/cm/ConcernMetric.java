@@ -51,6 +51,7 @@ public abstract class ConcernMetric implements IConcernMetric {
                 }
                 sbKey.append(classOrInterface.getName());
                 // TODO: this class should start from this interface
+                ConcernMetric.this.countObject(classOrInterface);
                 ConcernMetric.this.countObject(classOrInterface.getMembers());
                 return null;
             }
