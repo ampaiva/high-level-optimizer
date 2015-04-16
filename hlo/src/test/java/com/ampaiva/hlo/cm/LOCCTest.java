@@ -41,7 +41,7 @@ public class LOCCTest {
         return locc;
     }
 
-    private ConcernMetric getLOCCBySource(String source) {
+    private ConcernMetric getLOCCBySource(String source) throws ParseException {
         locc.parse(source);
         return locc;
     }

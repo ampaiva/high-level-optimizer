@@ -24,14 +24,10 @@ public abstract class ConcernMetric implements IConcernMetric {
         return source.replace("<>", "");
     }
 
-    public void parse(String source) {
-        try {
-            this.source = changeUnsupportedJavaFeatures(source);
-            cu = setCU();
-            doParse();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Parser error of: ", e);
-        }
+    public void parse(String source) throws ParseException {
+        this.source = changeUnsupportedJavaFeatures(source);
+        cu = setCU();
+        doParse();
     }
 
     private void doParse() {
@@ -122,7 +118,7 @@ public abstract class ConcernMetric implements IConcernMetric {
     }
 
     private void getStatementsInvokingMethod(Class<?> clazz, Object obj, Method method) {
-        if (clazz.isAssignableFrom(method.getReturnType()) && method.getParameterCount() == 0) {
+        if (clazz.isAssignableFrom(method.getReturnType()) && method.getParameterTypes().length == 0) {
             try {
                 countObject(method.invoke(obj));
             } catch (Exception e1) {
