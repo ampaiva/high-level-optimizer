@@ -4,6 +4,7 @@ import japa.parser.ParseException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class MetricsColector {
@@ -16,17 +17,23 @@ public class MetricsColector {
 
     }
 
-    public ConcernMetricsTable getMetrics() throws ParseException, IOException {
+    public ConcernMetricsTable getMetrics() throws IOException {
         ConcernMetricsTable concernMetricsTable = new ConcernMetricsTable();
-        for (Entry<String, String> entry : codeSource.getCodeSource().entrySet()) {
+        Map<String, String> codeMap = codeSource.getCodeSource();
+        for (Entry<String, String> entry : codeMap.entrySet()) {
             String key = entry.getKey();
             String source = entry.getValue();
-            List<IConcernMetric> concernMetrics = metricsSource.getConcernMetrics();
-            for (IConcernMetric concernMetric : concernMetrics) {
-                concernMetric.parse(source);
+            try {
+                List<IConcernMetric> concernMetrics = metricsSource.getConcernMetrics();
+                for (IConcernMetric concernMetric : concernMetrics) {
+                    concernMetric.parse(source);
+                }
+                concernMetricsTable.getHash().put(key, concernMetrics);
+            } catch (ParseException e) {
+                throw new IOException("Error parsing " + key + ": " + e.toString());
             }
-            concernMetricsTable.getHash().put(key, concernMetrics);
         }
+
         return concernMetricsTable;
     }
 }

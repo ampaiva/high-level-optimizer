@@ -73,11 +73,11 @@ public final class Helper {
         return new FileInputStream(file);
     }
 
-    public static String convertFile2String(File file) throws ParseException, IOException {
+    public static String convertFile2String(File file) throws IOException {
         return convertInputStream2String(convertFile2InputStream(file));
     }
 
-    public static InputStream convertString2InputStream(String source) throws ParseException {
+    public static InputStream convertString2InputStream(String source) {
         return new ByteArrayInputStream(source.getBytes());
     }
 
