@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.ampaiva.hlo.util.view.IProgressUpdate;
+import com.ampaiva.hlo.util.view.ProgressUpdate;
+
 public class MetricsColector {
     private final IMetricsSource metricsSource;
     private final ICodeSource codeSource;
@@ -20,8 +23,10 @@ public class MetricsColector {
     public ConcernMetricsTable getMetrics() throws IOException {
         ConcernMetricsTable concernMetricsTable = new ConcernMetricsTable();
         Map<String, String> codeMap = codeSource.getCodeSource();
+        IProgressUpdate update = ProgressUpdate.start("Processing code source", codeMap.entrySet().size());
         for (Entry<String, String> entry : codeMap.entrySet()) {
             String key = entry.getKey();
+            update.beginIndex(key);
             String source = entry.getValue();
             try {
                 List<IConcernMetric> concernMetrics = metricsSource.getConcernMetrics();
