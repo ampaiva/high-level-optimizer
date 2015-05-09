@@ -27,9 +27,9 @@ public class ProgressReport implements IProgressReport {
             if (phase == Phase.BEGIN_ITEM || phase == Phase.ENDED_ITEM) {
                 sb.append(" ").append(index + 1).append("/").append(size);
             }
-            if (info.length > 0) {
-                sb.append(" ");
+            if (info != null && info.length > 0) {
                 for (Object obj : info) {
+                    sb.append(" ");
                     sb.append(obj.toString());
                 }
             }
