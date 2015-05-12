@@ -23,7 +23,7 @@ public class ProgressReport implements IProgressReport {
     public void onChanged(Phase phase, String id, int index, int size, int level, Object... info) {
         if (maxLevel == UNLIMITED || level <= maxLevel) {
             StringBuilder sb = new StringBuilder();
-            sb.append(getIdent(level)).append(phase).append(" ").append(level).append(" ").append(id);
+            sb.append(getIdent(level)).append(phase).append(" ").append(id);
             if (phase == Phase.BEGIN_ITEM || phase == Phase.ENDED_ITEM) {
                 sb.append(" ").append(index + 1).append("/").append(size);
             }

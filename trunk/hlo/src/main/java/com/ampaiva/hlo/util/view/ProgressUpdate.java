@@ -85,13 +85,13 @@ public class ProgressUpdate implements IProgressUpdate {
 
     public void endIndex(Object... info) {
         finishChild();
-        if (info.length == 0) {
+        if (info == null || info.length == 0) {
             info = this.info;
         }
         report(Phase.ENDED_ITEM, info);
         prevIndex = index;
         index++;
-        if (index == size) {
+        if (index >= size) {
             finish();
         }
     }
