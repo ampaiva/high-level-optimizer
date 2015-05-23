@@ -119,4 +119,10 @@ public class ProgressUpdate implements IProgressUpdate {
     private void report(Phase phase, Object... info) {
         progressReport.onChanged(phase, id, index, size, level, info);
     }
+
+    public static IProgressUpdate startSingle(String id, Object... info) {
+        IProgressUpdate update = start(id, 1);
+        update.beginIndex(info);
+        return update;
+    }
 }

@@ -126,8 +126,11 @@ public final class Helper {
         File[] filesAndFolders = new File(sourceFolder).listFiles(new FilenameFilter() {
 
             public boolean accept(File dir, String name) {
-                if (!name.toLowerCase().endsWith(".java")) {
+                if (name.toLowerCase().endsWith(classRegEx)) {
                     return true;
+                }
+                if (name.length() < 5) {
+                    return dir.isDirectory();
                 }
                 return name.substring(0, name.length() - 5).matches(classRegEx);
             }
@@ -135,7 +138,7 @@ public final class Helper {
         for (File file : filesAndFolders) {
             if (file.isDirectory()) {
                 if (searchChildrenFolders) {
-                    files.addAll(getFilesRecursevely(file.getAbsolutePath()));
+                    files.addAll(getFilesRecursevely(file.getAbsolutePath(), classRegEx, searchChildrenFolders));
                 }
                 continue;
             }

@@ -35,7 +35,7 @@ public class MetricsColector {
                 }
                 concernMetricsTable.getHash().put(key, concernMetrics);
             } catch (ParseException e) {
-                throw new IOException("Error parsing " + key + ": " + e.toString());
+                System.err.println("Error parsing " + key + ": " + e.toString());
             }
         }
 
