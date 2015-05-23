@@ -77,6 +77,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countMethodCallExpr(MethodCallExpr obj) {
+        countObject(obj.getScope());
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
         List<String> lastSequence = sequences.get(sequences.size() - 1);
         lastSequence.add(getFullName(obj.getName(), obj.getScope()));
@@ -112,6 +113,13 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         List<ImportDeclaration> imports = cu.getImports();
         if (imports == null) {
             return null;
+        }
+        int index1 = objName.indexOf('<');
+        if (index1 > 0) {
+            int index2 = objName.indexOf('>');
+            if (index2 > 0 && index1 < index2) {
+                objName = objName.substring(0, index1);
+            }
         }
         for (ImportDeclaration importDeclaration : imports) {
             if (importDeclaration.getName().toString().endsWith(DOT + objName)) {
@@ -152,7 +160,11 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
                 fullName.append(cu.getPackage().getName()).append(DOT);
             }
             fullName.append(cu.getTypes().get(0).getName()).append(DOT);
+        } else if (scope != null && scope.getClass().isAssignableFrom(MethodCallExpr.class)) {
+            MethodCallExpr methodCallExpr = (MethodCallExpr) scope;
+            fullName.append(getFullName(methodCallExpr.getName(), methodCallExpr.getScope())).append(DOT);
         } else {
+
             String importStr = getStaticImport(scope);
             if (importStr == null && scope == null) {
                 importStr = getLocalMethodImport();

@@ -4,6 +4,7 @@ import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.expr.Expression;
+import japa.parser.ast.expr.MethodCallExpr;
 import japa.parser.ast.stmt.Statement;
 import japa.parser.ast.visitor.GenericVisitorAdapter;
 
@@ -34,7 +35,7 @@ public abstract class ConcernMetric implements IConcernMetric {
         try {
             parseSource();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Parser error: ", e);
+            System.err.println("Parser error: " + e.toString());
         }
     }
 
@@ -86,7 +87,9 @@ public abstract class ConcernMetric implements IConcernMetric {
                     countListObject((List<?>) obj);
                 } else {
                     invokeCountMethod(obj);
-                    handleNoCountMethodforType(obj);
+                    if (!(obj instanceof MethodCallExpr)) {
+                        handleNoCountMethodforType(obj);
+                    }
                 }
             } catch (NoSuchMethodException e) {
                 handleNoCountMethodforType(obj);
@@ -113,11 +116,11 @@ public abstract class ConcernMetric implements IConcernMetric {
 
     private void getStatementsInvokingMethod(Class<?>[] classes, Object obj, Method method) {
         for (Class<?> clazz : classes) {
-            getStatementsInvokingMethod(clazz, obj, method);
+            countStatementsInvokingMethod(clazz, obj, method);
         }
     }
 
-    private void getStatementsInvokingMethod(Class<?> clazz, Object obj, Method method) {
+    private void countStatementsInvokingMethod(Class<?> clazz, Object obj, Method method) {
         if (clazz.isAssignableFrom(method.getReturnType()) && method.getParameterTypes().length == 0) {
             try {
                 countObject(method.invoke(obj));

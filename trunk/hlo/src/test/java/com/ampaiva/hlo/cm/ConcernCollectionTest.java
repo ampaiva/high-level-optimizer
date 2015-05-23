@@ -330,4 +330,27 @@ public class ConcernCollectionTest {
         assertEquals(2, concernCollection.getMethodNames().size());
         assertEquals(concernCollection.getMethodNames().size(), concernCollection.getMethodSources().size());
     }
+
+    @Test
+    public void testNestedCalls() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("import java.util.List;");
+        sb.append("import com.ampaiva.test.model.Clone;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public boolean foo(List<Clone> list){\n");
+        sb.append("      boolean result = list.get(10).isAvailable();\n");
+        sb.append("      return result;\n");
+        sb.append("    }\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence0 = sequences.get(1);
+        assertEquals(2, sequence0.size());
+        assertEquals("java.util.List.get", sequence0.get(0));
+        assertEquals("java.util.List.get.isAvailable", sequence0.get(1));
+    }
+
 }
