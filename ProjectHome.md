@@ -1,0 +1,1 @@
+This project intends to optimize Java code before compilation. This is preliminarily a study. The results, if positives, can make this project a tool.
