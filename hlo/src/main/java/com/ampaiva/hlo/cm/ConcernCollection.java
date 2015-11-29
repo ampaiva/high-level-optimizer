@@ -12,6 +12,8 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.CastExpr;
+import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -96,6 +98,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         }
     }
 
+    public void countCastExpr(CastExpr obj) {
+        variables.put(obj.toString(), obj.getType().toString());
+    }
+
     public void countCatchClause(CatchClause obj) {
         variables.put(obj.getExcept().getId().toString(), obj.getExcept().getTypes().get(0).toString());
     }
@@ -146,7 +152,8 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     private String getVariableTypeImport(String objName, Expression scope) {
-        String clazz = variables.get(scope.toString());
+        String clazz = variables
+                .get(scope instanceof EnclosedExpr ? ((EnclosedExpr) scope).getInner().toString() : scope.toString());
         String importStr = getImport(clazz);
         if (importStr != null) {
             StringBuilder fullName = new StringBuilder();

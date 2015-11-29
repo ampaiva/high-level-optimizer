@@ -95,6 +95,34 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInSimpleClassWithOneCallCastExpr() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public int getInt(){\n");
+        sb.append("      return((Number) o[0]).intValue();\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(1, sequence1.size());
+        assertEquals("Number.intValue", sequence1.get(0));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(2, methodNames.size());
+        assertEquals("SimpleClass.", methodNames.get(0));
+        assertEquals("SimpleClass.getInt", methodNames.get(1));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(methodNames.size(), sources.size());
+        assertEquals("public int getInt() {\r\n    return ((Number) o[0]).intValue();\r\n}", sources.get(1));
+    }
+
+    @Test
     public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
