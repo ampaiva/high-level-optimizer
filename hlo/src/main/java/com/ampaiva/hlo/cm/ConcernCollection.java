@@ -1,8 +1,14 @@
 package com.ampaiva.hlo.cm;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -12,11 +18,6 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.type.Type;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
@@ -40,6 +41,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     public void countClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration obj) {
         addSequence("", obj.toString());
+    }
+
+    public void countFieldDeclaration(FieldDeclaration obj) {
+        for (VariableDeclarator variable : obj.getVariables()) {
+            variables.put(variable.getId().getName(), obj.getType().toString());
+        }
     }
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
@@ -101,8 +108,8 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         for (ImportDeclaration importDeclaration : imports) {
             if (importDeclaration.isStatic() && importDeclaration.getName().toString().endsWith(DOT + scope)) {
                 StringBuilder fullName = new StringBuilder();
-                fullName.append(importDeclaration.getName().toString()
-                        .substring(0, importDeclaration.getName().toString().lastIndexOf(DOT + scope) + 1));
+                fullName.append(importDeclaration.getName().toString().substring(0,
+                        importDeclaration.getName().toString().lastIndexOf(DOT + scope) + 1));
                 return fullName.toString();
             }
         }
@@ -111,7 +118,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private String getImport(String objName) {
         List<ImportDeclaration> imports = cu.getImports();
-        if (imports == null|| imports.size() == 0) {
+        if (imports == null || imports.size() == 0) {
             return null;
         }
         int index1 = objName.indexOf('<');
@@ -166,6 +173,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         } else {
 
             String importStr = getStaticImport(scope);
+            if (importStr == null && scope != null) {
+                importStr = getImport(scope.toString());
+                if (importStr != null) {
+                    importStr = importStr.substring(0, importStr.length() - scope.toString().length());
+                }
+            }
             if (importStr == null && scope == null) {
                 importStr = getLocalMethodImport();
             }
@@ -185,14 +198,17 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         return fullName.toString();
     }
 
+    @Override
     public List<String> getMethodSources() {
         return methodSources;
     }
 
+    @Override
     public List<String> getMethodNames() {
         return methodNames;
     }
 
+    @Override
     public List<List<String>> getSequences() {
         return sequences;
     }

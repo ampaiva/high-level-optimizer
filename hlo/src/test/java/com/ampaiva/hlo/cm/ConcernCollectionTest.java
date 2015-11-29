@@ -2,7 +2,6 @@ package com.ampaiva.hlo.cm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import com.github.javaparser.ParseException;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,6 +9,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.javaparser.ParseException;
 
 public class ConcernCollectionTest {
 
@@ -94,7 +95,7 @@ public class ConcernCollectionTest {
     }
 
     @Test
-    public void testGetMetricInSimpleClassWithImportsOneCall() throws ParseException {
+    public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
         sb.append("import static java.lang.System.out;");
@@ -130,6 +131,78 @@ public class ConcernCollectionTest {
         assertEquals(methodNames.size(), sources.size());
         assertEquals("public  SimpleClass() {\r\n    foo();\r\n    out.println();\r\n}", sources.get(1));
         assertEquals("void foo() {\r\n}", sources.get(2));
+    }
+
+    @Test
+    public void testGetMetricInSimpleClassWithImportsOneCall() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("import javax.persistence.Persistence;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public SimpleClass(){\n");
+        sb.append("       foo();\n");
+        sb.append("       Persistence.createEntityManagerFactory(persistenceUnitName);\n");
+        sb.append("    }\n");
+        sb.append("void foo() {\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(3, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(2, sequence1.size());
+        assertEquals("com.ampaiva.test.SimpleClass.foo", sequence1.get(0));
+        assertEquals("javax.persistence.Persistence.createEntityManagerFactory", sequence1.get(1));
+
+        List<String> sequence2 = sequences.get(2);
+        assertEquals(0, sequence2.size());
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+        assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(1));
+        assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(2));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(methodNames.size(), sources.size());
+        assertEquals(
+                "public  SimpleClass() {\r\n    foo();\r\n    Persistence.createEntityManagerFactory(persistenceUnitName);\r\n}",
+                sources.get(1));
+        assertEquals("void foo() {\r\n}", sources.get(2));
+    }
+
+    @Test
+    public void testGetMetricInSimpleClassWithImportsOneCallClassVariable() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;");
+        sb.append("import javax.persistence.EntityManagerFactory;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    private EntityManagerFactory emFactory;\n");
+        sb.append("    public SimpleClass(){\n");
+        sb.append("       emFactory.createEntityManager();\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(1, sequence1.size());
+        assertEquals("javax.persistence.EntityManagerFactory.createEntityManager", sequence1.get(0));
+
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(sequences.size(), methodNames.size());
+        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+        assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(1));
+
+        List<String> sources = concernCollection.getMethodSources();
+        assertNotNull(sources);
+        assertEquals(methodNames.size(), sources.size());
+        assertEquals("public  SimpleClass() {\r\n    emFactory.createEntityManager();\r\n}", sources.get(1));
     }
 
     @Test
