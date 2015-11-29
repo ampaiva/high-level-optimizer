@@ -2,7 +2,7 @@ package com.ampaiva.hlo.cm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import japa.parser.ParseException;
+import com.github.javaparser.ParseException;
 
 import java.io.IOException;
 import java.util.List;
@@ -63,7 +63,7 @@ public class ConcernCollectionTest {
         List<String> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public SimpleClass() {\n}", sources.get(1));
+        assertEquals("public  SimpleClass() {\r\n}", sources.get(1));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ConcernCollectionTest {
         List<String> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public SimpleClass() {\n    System.out.println();\n}", sources.get(1));
+        assertEquals("public  SimpleClass() {\r\n    System.out.println();\r\n}", sources.get(1));
     }
 
     @Test
@@ -128,8 +128,8 @@ public class ConcernCollectionTest {
         List<String> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public SimpleClass() {\n    foo();\n    out.println();\n}", sources.get(1));
-        assertEquals("void foo() {\n}", sources.get(2));
+        assertEquals("public  SimpleClass() {\r\n    foo();\r\n    out.println();\r\n}", sources.get(1));
+        assertEquals("void foo() {\r\n}", sources.get(2));
     }
 
     @Test

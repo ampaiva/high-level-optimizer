@@ -1,6 +1,6 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ast.Node;
+import com.github.javaparser.ast.Node;
 
 import java.util.Collections;
 import java.util.LinkedList;

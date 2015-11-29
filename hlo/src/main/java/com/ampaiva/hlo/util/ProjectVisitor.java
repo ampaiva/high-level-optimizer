@@ -1,8 +1,8 @@
 package com.ampaiva.hlo.util;
 
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.TypeDeclaration;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.TypeDeclaration;
 
 import java.io.File;
 import java.io.FileNotFoundException;

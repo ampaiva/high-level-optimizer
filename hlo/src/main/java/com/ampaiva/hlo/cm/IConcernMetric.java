@@ -1,6 +1,6 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ParseException;
+import com.github.javaparser.ParseException;
 
 import java.util.List;
 

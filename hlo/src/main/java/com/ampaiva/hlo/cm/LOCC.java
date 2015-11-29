@@ -1,10 +1,10 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ast.body.ConstructorDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.expr.NameExpr;
-import japa.parser.ast.stmt.ThrowStmt;
-import japa.parser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.stmt.ThrowStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class LOCC extends ConcernMetric {
     }
 
     public void countThrowsinNameExpr(List<NameExpr> throws_) {
-        if (throws_ == null) {
+        if (throws_ == null || throws_.size()==0) {
             return;
         }
 

@@ -1,6 +1,6 @@
 package com.ampaiva.hlo.util;
 
-import japa.parser.ParseException;
+import com.github.javaparser.ParseException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

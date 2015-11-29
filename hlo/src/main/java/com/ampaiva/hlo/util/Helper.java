@@ -22,9 +22,9 @@ package com.ampaiva.hlo.util;
  * Created on 30/06/2008
  */
 
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

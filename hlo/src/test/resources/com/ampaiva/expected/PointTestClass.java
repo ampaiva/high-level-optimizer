@@ -42,3 +42,4 @@ public class PointTestClass {
         return y;
     }
 }
+// End of Point.java

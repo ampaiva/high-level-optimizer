@@ -1,12 +1,12 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.MethodCallExpr;
-import japa.parser.ast.stmt.Statement;
-import japa.parser.ast.visitor.GenericVisitorAdapter;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -22,7 +22,7 @@ public abstract class ConcernMetric implements IConcernMetric {
     private String source;
 
     private static String changeUnsupportedJavaFeatures(String source) {
-        return source.replace("<>", "");
+        return source;
     }
 
     public void parse(String source) throws ParseException {

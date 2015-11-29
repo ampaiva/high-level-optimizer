@@ -2,8 +2,8 @@ package com.ampaiva.hlo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
 
 import java.io.File;
 import java.io.IOException;

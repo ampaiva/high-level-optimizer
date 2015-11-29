@@ -1,17 +1,17 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ast.ImportDeclaration;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.ConstructorDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.Parameter;
-import japa.parser.ast.body.VariableDeclarator;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.MethodCallExpr;
-import japa.parser.ast.expr.ObjectCreationExpr;
-import japa.parser.ast.expr.VariableDeclarationExpr;
-import japa.parser.ast.stmt.CatchClause;
-import japa.parser.ast.type.Type;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,12 +90,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countCatchClause(CatchClause obj) {
-        variables.put(obj.getExcept().getId().toString(), obj.getExcept().getType().toString());
+        variables.put(obj.getExcept().getId().toString(), obj.getExcept().getTypes().get(0).toString());
     }
 
     private String getStaticImport(Expression scope) {
         List<ImportDeclaration> imports = cu.getImports();
-        if (imports == null) {
+        if (imports == null || imports.size() == 0) {
             return null;
         }
         for (ImportDeclaration importDeclaration : imports) {
@@ -111,7 +111,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private String getImport(String objName) {
         List<ImportDeclaration> imports = cu.getImports();
-        if (imports == null) {
+        if (imports == null|| imports.size() == 0) {
             return null;
         }
         int index1 = objName.indexOf('<');

@@ -1,6 +1,6 @@
 package com.ampaiva.hlo.cm;
 
-import japa.parser.ast.Node;
+import com.github.javaparser.ast.Node;
 
 public final class ConcernMetricNode implements Comparable<ConcernMetricNode> {
 

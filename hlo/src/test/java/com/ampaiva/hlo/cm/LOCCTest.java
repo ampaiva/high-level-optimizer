@@ -1,7 +1,7 @@
 package com.ampaiva.hlo.cm;
 
 import static org.junit.Assert.assertEquals;
-import japa.parser.ParseException;
+import com.github.javaparser.ParseException;
 
 import java.io.File;
 import java.io.IOException;
