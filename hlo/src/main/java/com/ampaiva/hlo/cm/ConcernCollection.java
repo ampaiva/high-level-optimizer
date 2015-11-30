@@ -16,6 +16,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
@@ -83,6 +84,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         } else {
             fullName.append(obj.getType().toString());
         }
+        variables.put(obj.toString(), fullName.toString());
         fullName.append(DOT);
         fullName.append(obj.getType().getName());
         lastSequence.add(fullName.toString());
@@ -131,6 +133,10 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         for (VariableDeclarator variable : obj.getVars()) {
             variables.put(variable.getId().getName(), obj.getType().toString());
         }
+    }
+
+    public void countFieldAccessExpr(FieldAccessExpr obj) {
+        variables.put(obj.toString(), obj.toString());
     }
 
     public void countCastExpr(CastExpr obj) {

@@ -123,6 +123,31 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInSimpleClassWithObjectCreationExpr() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import com.floreantpos.model.dao.RefundTransactionDAO;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public void create(){\n");
+        sb.append("      new RefundTransactionDAO().getTotalRefundForTerminal(terminal);\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(2, methodNames.size());
+        assertEquals("SimpleClass.", methodNames.get(0));
+        assertEquals("SimpleClass.create", methodNames.get(1));
+
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(2, sequence1.size());
+        assertEquals("com.floreantpos.model.dao.RefundTransactionDAO.RefundTransactionDAO", sequence1.get(0));
+        assertEquals("com.floreantpos.model.dao.RefundTransactionDAO.getTotalRefundForTerminal", sequence1.get(1));
+    }
+
+    @Test
     public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
@@ -411,17 +436,18 @@ public class ConcernCollectionTest {
         sb.append("      private String[] fooStr = {com.ampaiva.other.FooClass.foo()};\n");
         sb.append("}");
         ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
+
         List<List<String>> sequences = concernCollection.getSequences();
         assertNotNull(sequences);
+        assertEquals(sequences.size(), methodNames.size());
         assertEquals(1, sequences.size());
         List<String> sequence0 = sequences.get(0);
         assertEquals(1, sequence0.size());
         assertEquals("com.ampaiva.other.FooClass.foo", sequence0.get(0));
 
-        List<String> methodNames = concernCollection.getMethodNames();
-        assertNotNull(methodNames);
-        assertEquals(sequences.size(), methodNames.size());
-        assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
     }
 
     @Test
