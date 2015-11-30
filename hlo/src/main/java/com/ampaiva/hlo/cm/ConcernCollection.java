@@ -13,6 +13,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -60,11 +61,6 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         parametersToVariables(obj.getParameters());
     }
 
-    public void countMethodDeclaration(MethodDeclaration obj) {
-        addSequence(obj.getName(), obj.toString());
-        parametersToVariables(obj.getParameters());
-    }
-
     private void parametersToVariables(List<Parameter> parameters) {
         if (parameters != null) {
             for (int i = 0; i < parameters.size(); i++) {
@@ -73,6 +69,11 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
                 variables.put(parameter.getId().getName(), parameterType.toString());
             }
         }
+    }
+
+    public void countMethodDeclaration(MethodDeclaration obj) {
+        addSequence(obj.getName(), obj.toString());
+        parametersToVariables(obj.getParameters());
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
@@ -140,7 +141,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countCastExpr(CastExpr obj) {
-        variables.put(obj.toString(), obj.getType().toString());
+        variables.put(obj.getExpr().toString(), obj.getType().toString());
     }
 
     public void countCatchClause(CatchClause obj) {
@@ -193,9 +194,33 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         return fullName.toString();
     }
 
+    private String getVariableNamefromScope(Expression scope) {
+        if (scope instanceof EnclosedExpr) {
+            return getVariableNamefromEnclosedExpr((EnclosedExpr) scope);
+        }
+        return scope.toString();
+    }
+
+    private String getVariableNamefromEnclosedExpr(EnclosedExpr scope) {
+        Expression expr = scope.getInner();
+        if (expr instanceof AssignExpr) {
+            return getVariableNamefromAssignExpr((AssignExpr) expr);
+        } else if (expr instanceof CastExpr) {
+            return getVariableNamefromCastExpr((CastExpr) expr);
+        }
+        return scope.getInner().toString();
+    }
+
+    private String getVariableNamefromCastExpr(CastExpr expr) {
+        return getVariableNamefromScope(expr.getExpr());
+    }
+
+    private String getVariableNamefromAssignExpr(AssignExpr expr) {
+        return getVariableNamefromScope(expr.getTarget());
+    }
+
     private String getVariableTypeImport(String objName, Expression scope) {
-        String variable = scope instanceof EnclosedExpr ? ((EnclosedExpr) scope).getInner().toString()
-                : scope.toString();
+        String variable = getVariableNamefromScope(scope);
         String clazz = variables.get(variable);
         if (clazz == null) {
             throw new RuntimeException("Could not find variable " + variable);

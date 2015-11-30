@@ -148,6 +148,32 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInSimpleClassWithEnclosedExpr() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import org.w3c.dom.Element;");
+        sb.append("public class SimpleClass {\n");
+
+        sb.append("    public Element create(){\n");
+        sb.append("      Element element;\n");
+        sb.append("      (element = ((Element) node)).getTagName();\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(2, methodNames.size());
+        assertEquals("SimpleClass.", methodNames.get(0));
+        assertEquals("SimpleClass.create", methodNames.get(1));
+
+        List<List<String>> methods = concernCollection.getSequences();
+        assertNotNull(methods);
+        assertEquals(2, methods.size());
+        List<String> sequences = methods.get(1);
+        assertEquals(1, sequences.size());
+        assertEquals("org.w3c.dom.Element.getTagName", sequences.get(0));
+    }
+
+    @Test
     public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
