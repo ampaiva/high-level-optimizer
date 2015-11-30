@@ -1,5 +1,6 @@
 package com.ampaiva.hlo.cm;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.ForStmt;
+import com.github.javaparser.ast.stmt.ForeachStmt;
 import com.github.javaparser.ast.type.Type;
 
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
@@ -92,6 +95,38 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         lastSequence.add(getFullName(obj.getName(), obj.getScope()));
     }
 
+    @Override
+    protected List<Method> sortMethods(Object obj, List<Method> methods) {
+        if (obj instanceof ForStmt) {
+            String orderNames[] = { "getInit", "getCompare", "getBody", "getUpdate" };
+            return sortMethods(methods, orderNames);
+        } else if (obj instanceof ForeachStmt) {
+            String orderNames[] = { "getVariable", "getIterable", "getBody" };
+            return sortMethods(methods, orderNames);
+        }
+        return super.sortMethods(obj, methods);
+
+    }
+
+    private List<Method> sortMethods(List<Method> methods, String[] orderNames) {
+        Method order[] = new Method[orderNames.length];
+        for (Method method : methods) {
+            for (int i = 0; i < order.length; i++) {
+                if (method.getName().equals(orderNames[i])) {
+                    order[i] = method;
+                }
+            }
+        }
+        List<Method> methodsSorted = new ArrayList<>();
+        for (int i = 0; i < order.length; i++) {
+            methodsSorted.add(i, order[i]);
+        }
+        return methodsSorted;
+    }
+
+    public void countForStmt(ForStmt obj) {
+    }
+
     public void countVariableDeclarationExpr(VariableDeclarationExpr obj) {
         for (VariableDeclarator variable : obj.getVars()) {
             variables.put(variable.getId().getName(), obj.getType().toString());
@@ -127,6 +162,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         if (imports == null || imports.size() == 0) {
             return null;
         }
+        assert (objName != null);
         int index1 = objName.indexOf('<');
         if (index1 > 0) {
             int index2 = objName.indexOf('>');
@@ -152,8 +188,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     private String getVariableTypeImport(String objName, Expression scope) {
-        String clazz = variables
-                .get(scope instanceof EnclosedExpr ? ((EnclosedExpr) scope).getInner().toString() : scope.toString());
+        String variable = scope instanceof EnclosedExpr ? ((EnclosedExpr) scope).getInner().toString()
+                : scope.toString();
+        String clazz = variables.get(variable);
+        if (clazz == null) {
+            throw new RuntimeException("Could not find variable " + variable);
+        }
         String importStr = getImport(clazz);
         if (importStr != null) {
             StringBuilder fullName = new StringBuilder();

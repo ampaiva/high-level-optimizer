@@ -1,13 +1,5 @@
 package com.ampaiva.hlo.cm;
 
-import com.github.javaparser.ParseException;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
-
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,6 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.ampaiva.hlo.util.Helper;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
 public abstract class ConcernMetric implements IConcernMetric {
     private final ConcernMetricNodes nodes = new ConcernMetricNodes();
@@ -25,6 +24,7 @@ public abstract class ConcernMetric implements IConcernMetric {
         return source;
     }
 
+    @Override
     public void parse(String source) throws ParseException {
         this.source = changeUnsupportedJavaFeatures(source);
         cu = setCU();
@@ -42,7 +42,8 @@ public abstract class ConcernMetric implements IConcernMetric {
     private void parseSource() throws ParseException {
         final GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder> mva = new GenericVisitorAdapter<ClassOrInterfaceDeclaration, StringBuilder>() {
             @Override
-            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface, StringBuilder sbKey) {
+            public ClassOrInterfaceDeclaration visit(ClassOrInterfaceDeclaration classOrInterface,
+                    StringBuilder sbKey) {
                 if (sbKey.length() > 0) {
                     sbKey.append(".");
                 }
@@ -71,10 +72,12 @@ public abstract class ConcernMetric implements IConcernMetric {
         return source;
     }
 
+    @Override
     public int getMetric() {
         return getNodes().countLines();
     }
 
+    @Override
     public ConcernMetricNodes getNodes() {
         return nodes;
     }
@@ -94,7 +97,7 @@ public abstract class ConcernMetric implements IConcernMetric {
             } catch (NoSuchMethodException e) {
                 handleNoCountMethodforType(obj);
             } catch (Exception e) {
-                throw new IllegalArgumentException(obj.toString() + ": " + e.toString(), e);
+                throw new IllegalArgumentException(obj.toString() + ": " + e.toString() + " " + cu, e);
             }
         }
     }
@@ -109,9 +112,20 @@ public abstract class ConcernMetric implements IConcernMetric {
 
     private void handleNoCountMethodforType(Object obj) {
         List<Method> methods = Arrays.asList(obj.getClass().getDeclaredMethods());
+        methods = sortMethods(obj, methods);
         for (Method method : methods) {
             getStatementsInvokingMethod(new Class[] { Expression.class, Statement.class, List.class }, obj, method);
         }
+    }
+
+    /*
+     * This method should be overridden in case of method order
+     * matter. For example: ForStmt has getInit, getCompare, getBody,
+     * and getUpdate order. Analysis of getBody before getInit can
+     * causes variables not available.
+     */
+    protected List<Method> sortMethods(Object obj, List<Method> methods) {
+        return methods;
     }
 
     private void getStatementsInvokingMethod(Class<?>[] classes, Object obj, Method method) {
@@ -130,8 +144,8 @@ public abstract class ConcernMetric implements IConcernMetric {
         }
     }
 
-    private void invokeCountMethod(Object obj) throws NoSuchMethodException, IllegalAccessException,
-            InvocationTargetException {
+    private void invokeCountMethod(Object obj)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method m = this.getClass().getDeclaredMethod("count" + obj.getClass().getSimpleName(), obj.getClass());
         m.invoke(this, obj);
     }

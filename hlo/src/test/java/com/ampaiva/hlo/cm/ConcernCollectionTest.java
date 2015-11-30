@@ -330,6 +330,59 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInSimpleClassWithFor() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;\n");
+        sb.append("import java.util.Iterator;");
+        sb.append("import java.util.Collection;");
+        sb.append("import com.sun.j2ee.blueprints.lineitem.ejb.LineItemLocal;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public SimpleClass(){\n");
+        sb.append("       Collection lineItems = getLineItems();");
+        sb.append("       for (Iterator iterator = lineItems.iterator(); iterator.hasNext();) {\n");
+        sb.append("          LineItemLocal lineItem = (LineItemLocal) iterator.next();\n");
+        sb.append("       }\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(4, sequence1.size());
+        assertEquals("com.ampaiva.test.SimpleClass.getLineItems", sequence1.get(0));
+        assertEquals("java.util.Collection.iterator", sequence1.get(1));
+        assertEquals("java.util.Iterator.hasNext", sequence1.get(2));
+        assertEquals("java.util.Iterator.next", sequence1.get(3));
+    }
+
+    @Test
+    public void testGetMetricInSimpleClassWithForEach() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package com.ampaiva.test;\n");
+        sb.append("import java.util.Iterator;");
+        sb.append("import java.util.Collection;");
+        sb.append("import com.sun.j2ee.blueprints.lineitem.ejb.LineItemLocal;");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public SimpleClass(){\n");
+        sb.append("       Collection lineItems = getLineItems();");
+        sb.append("       for (Iterator iterator : lineItems.iterator()) {\n");
+        sb.append("          LineItemLocal lineItem = (LineItemLocal) iterator.next();\n");
+        sb.append("       }\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(3, sequence1.size());
+        assertEquals("com.ampaiva.test.SimpleClass.getLineItems", sequence1.get(0));
+        assertEquals("java.util.Collection.iterator", sequence1.get(1));
+        assertEquals("java.util.Iterator.next", sequence1.get(2));
+    }
+
+    @Test
     public void testgetSequencesObjCreationInitClass() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
