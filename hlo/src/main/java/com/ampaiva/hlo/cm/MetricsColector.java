@@ -1,7 +1,5 @@
 package com.ampaiva.hlo.cm;
 
-import com.github.javaparser.ParseException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -9,20 +7,17 @@ import java.util.Map.Entry;
 
 import com.ampaiva.hlo.util.view.IProgressUpdate;
 import com.ampaiva.hlo.util.view.ProgressUpdate;
+import com.github.javaparser.ParseException;
 
 public class MetricsColector {
     private final IMetricsSource metricsSource;
-    private final ICodeSource codeSource;
 
-    public MetricsColector(IMetricsSource metricsSource, ICodeSource codeSource) {
+    public MetricsColector(IMetricsSource metricsSource) {
         this.metricsSource = metricsSource;
-        this.codeSource = codeSource;
-
     }
 
-    public ConcernMetricsTable getMetrics() throws IOException {
+    public ConcernMetricsTable getMetrics(Map<String, String> codeMap) throws IOException {
         ConcernMetricsTable concernMetricsTable = new ConcernMetricsTable();
-        Map<String, String> codeMap = codeSource.getCodeSource();
         IProgressUpdate update = ProgressUpdate.start("Processing code source", codeMap.entrySet().size());
         for (Entry<String, String> entry : codeMap.entrySet()) {
             String key = entry.getKey();

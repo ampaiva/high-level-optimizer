@@ -2,7 +2,6 @@ package com.ampaiva.hlo.cm;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
-import com.github.javaparser.ParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.ampaiva.hlo.util.SourceColector;
+import com.github.javaparser.ParseException;
 
 public class MetricsColectorTest extends EasyMockSupport {
 
@@ -34,7 +34,7 @@ public class MetricsColectorTest extends EasyMockSupport {
         metricsSource = createMock(IMetricsSource.class);
         codeSource = createMock(ICodeSource.class);
         concernMetric = createMock(IConcernMetric.class);
-        colector = new MetricsColector(metricsSource, codeSource);
+        colector = new MetricsColector(metricsSource);
     }
 
     /**
@@ -56,7 +56,7 @@ public class MetricsColectorTest extends EasyMockSupport {
 
         replayAll();
 
-        ConcernMetricsTable concernMetricsTable = colector.getMetrics();
+        ConcernMetricsTable concernMetricsTable = colector.getMetrics(codeSource.getCodeSource());
         assertEquals(5, concernMetricsTable.getHash().size());
     }
 
@@ -72,7 +72,7 @@ public class MetricsColectorTest extends EasyMockSupport {
 
         replayAll();
 
-        ConcernMetricsTable concernMetricsTable = colector.getMetrics();
+        ConcernMetricsTable concernMetricsTable = colector.getMetrics(codeSource.getCodeSource());
         assertEquals(1, concernMetricsTable.getHash().size());
     }
 
@@ -93,7 +93,7 @@ public class MetricsColectorTest extends EasyMockSupport {
         concernMetric.parse(source);
         replayAll();
 
-        ConcernMetricsTable concernMetricsTable = colector.getMetrics();
+        ConcernMetricsTable concernMetricsTable = colector.getMetrics(codeSource.getCodeSource());
         assertEquals(1, concernMetricsTable.getHash().size());
     }
 }
