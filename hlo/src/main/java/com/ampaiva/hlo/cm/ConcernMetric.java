@@ -12,6 +12,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 
@@ -90,7 +91,7 @@ public abstract class ConcernMetric implements IConcernMetric {
                     countListObject((List<?>) obj);
                 } else {
                     invokeCountMethod(obj);
-                    if (!(obj instanceof MethodCallExpr)) {
+                    if (!(obj instanceof MethodCallExpr) && !(obj instanceof ObjectCreationExpr)) {
                         handleNoCountMethodforType(obj);
                     }
                 }

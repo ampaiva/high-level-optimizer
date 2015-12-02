@@ -78,6 +78,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
+        countObject(obj.getArgs());
         List<String> lastSequence = sequences.get(sequences.size() - 1);
         String importStr = getImport(obj.getType().toString());
         StringBuilder fullName = new StringBuilder();
