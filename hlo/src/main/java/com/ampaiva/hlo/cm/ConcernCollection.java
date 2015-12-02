@@ -24,6 +24,7 @@ import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.ForeachStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.Type;
 
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
@@ -105,6 +106,9 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
             return sortMethods(methods, orderNames);
         } else if (obj instanceof ForeachStmt) {
             String orderNames[] = { "getVariable", "getIterable", "getBody" };
+            return sortMethods(methods, orderNames);
+        } else if (obj instanceof TryStmt) {
+            String orderNames[] = { "getResources", "getTryBlock", "getCatchs", "getFinallyBlock" };
             return sortMethods(methods, orderNames);
         }
         return super.sortMethods(obj, methods);
