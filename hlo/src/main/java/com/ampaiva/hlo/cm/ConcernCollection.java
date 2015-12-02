@@ -22,6 +22,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.DoStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.ForeachStmt;
 import com.github.javaparser.ast.stmt.TryStmt;
@@ -111,6 +112,9 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
             return sortMethods(methods, orderNames);
         } else if (obj instanceof TryStmt) {
             String orderNames[] = { "getResources", "getTryBlock", "getCatchs", "getFinallyBlock" };
+            return sortMethods(methods, orderNames);
+        } else if (obj instanceof DoStmt) {
+            String orderNames[] = { "getBody", "getCondition" };
             return sortMethods(methods, orderNames);
         }
         return super.sortMethods(obj, methods);
