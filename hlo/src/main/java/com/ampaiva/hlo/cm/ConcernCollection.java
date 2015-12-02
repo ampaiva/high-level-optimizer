@@ -94,6 +94,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countMethodCallExpr(MethodCallExpr obj) {
+        countObject(obj.getArgs());
         countObject(obj.getScope());
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
         List<String> lastSequence = sequences.get(sequences.size() - 1);

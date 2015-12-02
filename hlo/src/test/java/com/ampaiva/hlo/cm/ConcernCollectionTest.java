@@ -262,6 +262,36 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInParametersInsideMethodcall() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import java.sql.ResultSet;\n");
+        sb.append("import java.util.List;\n");
+        sb.append("import com.foo.Project;\n");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public void methodWithParametersInsidecall(List<Project> list){\n");
+        sb.append("      ResultSet rs = null;\n");
+        sb.append("      list.add(new Project(rs.getInt(1), rs.getString(1)));\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(2, methodNames.size());
+        assertEquals("SimpleClass.", methodNames.get(0));
+        assertEquals("SimpleClass.methodWithParametersInsidecall", methodNames.get(1));
+
+        List<List<String>> methods = concernCollection.getSequences();
+        assertNotNull(methods);
+        assertEquals(2, methods.size());
+        List<String> sequences = methods.get(1);
+        assertEquals(4, sequences.size());
+        assertEquals("java.sql.ResultSet.getInt", sequences.get(0));
+        assertEquals("java.sql.ResultSet.getString", sequences.get(1));
+        assertEquals("com.foo.Project.Project", sequences.get(2));
+        assertEquals("java.util.List.add", sequences.get(3));
+    }
+
+    @Test
     public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
