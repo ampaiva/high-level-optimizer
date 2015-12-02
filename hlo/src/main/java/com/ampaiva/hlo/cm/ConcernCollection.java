@@ -229,7 +229,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         String variable = getVariableNamefromScope(scope);
         String clazz = variables.get(variable);
         if (clazz == null) {
-            throw new RuntimeException("Could not find variable " + variable);
+            return null;
         }
         String importStr = getImport(clazz);
         if (importStr != null) {
@@ -268,6 +268,9 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
             }
             if (importStr == null && scope != null) {
                 importStr = getVariableTypeImport(objName, scope);
+                if (importStr == null) {
+                    importStr = scope.toString();
+                }
                 scope = null;
             }
             if (importStr != null) {
