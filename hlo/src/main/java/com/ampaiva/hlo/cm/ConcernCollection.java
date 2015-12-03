@@ -36,7 +36,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     private final List<List<String>> sequences = new ArrayList<List<String>>();
     private final Map<String, String> variables = new HashMap<String, String>();
 
-    private void addSequence(String methodName, String methodSource) {
+    private void addMethod(String methodName, String methodSource) {
         StringBuilder sb = new StringBuilder();
         if (cu.getPackage() != null) {
             sb.append(cu.getPackage().getName()).append(DOT);
@@ -49,7 +49,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration obj) {
-        addSequence("", obj.toString());
+        addMethod("", obj.toString());
     }
 
     public void countFieldDeclaration(FieldDeclaration obj) {
@@ -59,7 +59,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
-        addSequence(obj.getName(), obj.toString());
+        addMethod(obj.getName(), obj.toString());
         parametersToVariables(obj.getParameters());
     }
 
@@ -74,13 +74,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {
-        addSequence(obj.getName(), obj.toString());
+        addMethod(obj.getName(), obj.toString());
         parametersToVariables(obj.getParameters());
     }
 
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
         countObject(obj.getArgs());
-        List<String> lastSequence = sequences.get(sequences.size() - 1);
         String importStr = getImport(obj.getType().toString());
         StringBuilder fullName = new StringBuilder();
         if (importStr != null) {
@@ -91,12 +90,16 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         variables.put(obj.toString(), fullName.toString());
         fullName.append(DOT);
         fullName.append(obj.getType().getName());
+
+        getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
+        List<String> lastSequence = sequences.get(sequences.size() - 1);
         lastSequence.add(fullName.toString());
     }
 
     public void countMethodCallExpr(MethodCallExpr obj) {
         countObject(obj.getArgs());
         countObject(obj.getScope());
+
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
         List<String> lastSequence = sequences.get(sequences.size() - 1);
         lastSequence.add(getFullName(obj.getName(), obj.getScope()));
