@@ -48,6 +48,11 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         sequences.add(new ArrayList<String>());
     }
 
+    public void addSequence(Expression obj, final String fullName) {
+        getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
+        sequences.get(sequences.size() - 1).add(fullName);
+    }
+
     public void countClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration obj) {
         addMethod("", obj.toString());
     }
@@ -81,28 +86,23 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     public void countObjectCreationExpr(ObjectCreationExpr obj) {
         countObject(obj.getArgs());
         String importStr = getImport(obj.getType().toString());
-        StringBuilder fullName = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (importStr != null) {
-            fullName.append(importStr);
+            sb.append(importStr);
         } else {
-            fullName.append(obj.getType().toString());
+            sb.append(obj.getType().toString());
         }
-        variables.put(obj.toString(), fullName.toString());
-        fullName.append(DOT);
-        fullName.append(obj.getType().getName());
+        variables.put(obj.toString(), sb.toString());
+        sb.append(DOT);
+        sb.append(obj.getType().getName());
 
-        getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
-        List<String> lastSequence = sequences.get(sequences.size() - 1);
-        lastSequence.add(fullName.toString());
+        addSequence(obj, sb.toString());
     }
 
     public void countMethodCallExpr(MethodCallExpr obj) {
         countObject(obj.getArgs());
         countObject(obj.getScope());
-
-        getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
-        List<String> lastSequence = sequences.get(sequences.size() - 1);
-        lastSequence.add(getFullName(obj.getName(), obj.getScope()));
+        addSequence(obj, getFullName(obj.getName(), obj.getScope()));
     }
 
     @Override
