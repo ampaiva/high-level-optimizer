@@ -2,11 +2,13 @@ package com.ampaiva.hlo.cm;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -31,12 +33,13 @@ import com.github.javaparser.ast.type.Type;
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private static final String DOT = ".";
-    private final List<String> methodSources = new ArrayList<String>();
-    private final List<String> methodNames = new ArrayList<String>();
-    private final List<List<String>> sequences = new ArrayList<List<String>>();
-    private final Map<String, String> variables = new HashMap<String, String>();
+    private final List<String> methodSources = new ArrayList<>();
+    private final List<String> methodNames = new ArrayList<>();
+    private final List<List<Integer>> methodPositions = new ArrayList<>();
+    private final List<List<String>> sequences = new ArrayList<>();
+    private final Map<String, String> variables = new HashMap<>();
 
-    private void addMethod(String methodName, String methodSource) {
+    private void addMethod(String methodName, Node obj) {
         StringBuilder sb = new StringBuilder();
         if (cu.getPackage() != null) {
             sb.append(cu.getPackage().getName()).append(DOT);
@@ -44,7 +47,9 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         sb.append(cu.getTypes().get(0).getName()).append(DOT);
         sb.append(methodName);
         methodNames.add(sb.toString());
-        methodSources.add(methodSource);
+        methodSources.add(obj.toString());
+        methodPositions
+                .add(Arrays.asList(obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn()));
         sequences.add(new ArrayList<String>());
     }
 
@@ -54,7 +59,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration obj) {
-        addMethod("", obj.toString());
+        addMethod("", obj);
     }
 
     public void countFieldDeclaration(FieldDeclaration obj) {
@@ -64,7 +69,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countConstructorDeclaration(ConstructorDeclaration obj) {
-        addMethod(obj.getName(), obj.toString());
+        addMethod(obj.getName(), obj);
         parametersToVariables(obj.getParameters());
     }
 
@@ -79,7 +84,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     public void countMethodDeclaration(MethodDeclaration obj) {
-        addMethod(obj.getName(), obj.toString());
+        addMethod(obj.getName(), obj);
         parametersToVariables(obj.getParameters());
     }
 
@@ -300,6 +305,11 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     @Override
     public List<String> getMethodNames() {
         return methodNames;
+    }
+
+    @Override
+    public List<List<Integer>> getMethodPositions() {
+        return methodPositions;
     }
 
     @Override

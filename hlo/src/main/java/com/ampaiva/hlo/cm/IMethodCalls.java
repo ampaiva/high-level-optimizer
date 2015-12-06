@@ -8,6 +8,8 @@ public interface IMethodCalls {
 
     public abstract List<String> getMethodNames();
 
+    public abstract List<List<Integer>> getMethodPositions();
+
     public abstract List<List<String>> getSequences();
 
 }
