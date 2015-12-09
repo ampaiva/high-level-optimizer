@@ -315,6 +315,30 @@ public class ConcernCollectionTest {
     }
 
     @Test
+    public void testGetMetricInStringOperator() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import javax.servlet.http.HttpServletRequest;\n");
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public String method(HttpServletRequest request){\n");
+        sb.append("      String descricaoQueixa = request.getParameter(\"descricaoQueixa\");\n");
+        sb.append("    }\n");
+        sb.append("}");
+        IMethodCalls concernCollection = getCCBySource(sb.toString());
+        List<String> methodNames = concernCollection.getMethodNames();
+        assertNotNull(methodNames);
+        assertEquals(2, methodNames.size());
+        assertEquals("SimpleClass.", methodNames.get(0));
+        assertEquals("SimpleClass.method", methodNames.get(1));
+
+        List<List<String>> methods = concernCollection.getSequences();
+        assertNotNull(methods);
+        assertEquals(2, methods.size());
+        List<String> sequences = methods.get(1);
+        assertEquals(1, sequences.size());
+        assertEquals("javax.servlet.http.HttpServletRequest.getParameter", sequences.get(0));
+    }
+
+    @Test
     public void testGetMetricInSimpleClassWithStaticImportsOneCall() throws ParseException {
         StringBuilder sb = new StringBuilder();
         sb.append("package com.ampaiva.test;");
