@@ -36,7 +36,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     private final List<String> methodSources = new ArrayList<>();
     private final List<String> methodNames = new ArrayList<>();
     private final List<List<Integer>> methodPositions = new ArrayList<>();
-    private final List<List<String>> sequences = new ArrayList<>();
+    private final List<List<String>> calls = new ArrayList<>();
     private final Map<String, String> variables = new HashMap<>();
 
     private void addMethod(String methodName, Node obj) {
@@ -50,12 +50,12 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         methodSources.add(obj.toString());
         methodPositions
                 .add(Arrays.asList(obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn()));
-        sequences.add(new ArrayList<String>());
+        calls.add(new ArrayList<String>());
     }
 
-    public void addSequence(Expression obj, final String fullName) {
+    private void addCall(Expression obj, final String fullName) {
         getNodes().add(getSource(), obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn());
-        sequences.get(sequences.size() - 1).add(fullName);
+        calls.get(calls.size() - 1).add(fullName);
     }
 
     public void countClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration obj) {
@@ -101,13 +101,13 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         sb.append(DOT);
         sb.append(obj.getType().getName());
 
-        addSequence(obj, sb.toString());
+        addCall(obj, sb.toString());
     }
 
     public void countMethodCallExpr(MethodCallExpr obj) {
         countObject(obj.getArgs());
         countObject(obj.getScope());
-        addSequence(obj, getFullName(obj.getName(), obj.getScope()));
+        addCall(obj, getFullName(obj.getName(), obj.getScope()));
     }
 
     @Override
@@ -314,7 +314,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     @Override
     public List<List<String>> getSequences() {
-        return sequences;
+        return calls;
     }
 
     @Override
