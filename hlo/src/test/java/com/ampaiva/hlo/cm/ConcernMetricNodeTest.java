@@ -79,6 +79,7 @@ public class ConcernMetricNodeTest {
         ConcernMetricNode concernMetricNode = new ConcernMetricNode(source, 2, 2, 2, 5);
         assertEquals(10 + 1 + 2, concernMetricNode.getOffset());
         assertEquals(4, concernMetricNode.getLength());
+        assertEquals("2345", concernMetricNode.getSourceHandler().getSnippet());
     }
 
     @Test

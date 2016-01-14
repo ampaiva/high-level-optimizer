@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.ampaiva.hlo.util.SourceHandler;
 import com.github.javaparser.ParseException;
 
 public class ConcernCollectionTest {
@@ -61,10 +62,10 @@ public class ConcernCollectionTest {
         assertEquals("SimpleClass.", methodNames.get(0));
         assertEquals("SimpleClass.SimpleClass", methodNames.get(1));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public  SimpleClass() {\r\n}", sources.get(1));
+        assertEquals("public SimpleClass(){\n    }", sources.get(1).getSnippet());
     }
 
     @Test
@@ -88,10 +89,10 @@ public class ConcernCollectionTest {
         assertEquals("SimpleClass.", methodNames.get(0));
         assertEquals("SimpleClass.SimpleClass", methodNames.get(1));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public  SimpleClass() {\r\n    System.out.println();\r\n}", sources.get(1));
+        assertEquals("public SimpleClass(){\n       System.out.println();\n    }", sources.get(1).getSnippet());
     }
 
     @Test
@@ -116,10 +117,11 @@ public class ConcernCollectionTest {
         assertEquals("SimpleClass.", methodNames.get(0));
         assertEquals("SimpleClass.getInt", methodNames.get(1));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public int getInt() {\r\n    return ((Number) o[0]).intValue();\r\n}", sources.get(1));
+        assertEquals("public int getInt(){\n      return((Number) o[0]).intValue();\n    }",
+                sources.get(1).getSnippet());
     }
 
     @Test
@@ -370,11 +372,11 @@ public class ConcernCollectionTest {
         assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(1));
         assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(2));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public  SimpleClass() {\r\n    foo();\r\n    out.println();\r\n}", sources.get(1));
-        assertEquals("void foo() {\r\n}", sources.get(2));
+        assertEquals("public SimpleClass(){\n       foo();\n       out.println();\n    }", sources.get(1).getSnippet());
+        assertEquals("void foo() {\n    }", sources.get(2).getSnippet());
     }
 
     @Test
@@ -409,13 +411,13 @@ public class ConcernCollectionTest {
         assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(1));
         assertEquals("com.ampaiva.test.SimpleClass.foo", methodNames.get(2));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
         assertEquals(
-                "public  SimpleClass() {\r\n    foo();\r\n    Persistence.createEntityManagerFactory(persistenceUnitName);\r\n}",
-                sources.get(1));
-        assertEquals("void foo() {\r\n}", sources.get(2));
+                "public SimpleClass(){\n       foo();\n       Persistence.createEntityManagerFactory(persistenceUnitName);\n    }",
+                sources.get(1).getSnippet());
+        assertEquals("void foo() {\n    }", sources.get(2).getSnippet());
     }
 
     @Test
@@ -443,10 +445,11 @@ public class ConcernCollectionTest {
         assertEquals("com.ampaiva.test.SimpleClass.", methodNames.get(0));
         assertEquals("com.ampaiva.test.SimpleClass.SimpleClass", methodNames.get(1));
 
-        List<String> sources = concernCollection.getMethodSources();
+        List<SourceHandler> sources = concernCollection.getMethodSources();
         assertNotNull(sources);
         assertEquals(methodNames.size(), sources.size());
-        assertEquals("public  SimpleClass() {\r\n    emFactory.createEntityManager();\r\n}", sources.get(1));
+        assertEquals("public SimpleClass(){\n       emFactory.createEntityManager();\n    }",
+                sources.get(1).getSnippet());
     }
 
     @Test
@@ -479,7 +482,7 @@ public class ConcernCollectionTest {
         assertEquals(0, sequence2.size());
 
         List<String> methodNames = concernCollection.getMethodNames();
-        List<String> methodSources = concernCollection.getMethodSources();
+        List<SourceHandler> methodSources = concernCollection.getMethodSources();
         assertNotNull(methodNames);
         assertNotNull(methodSources);
         assertEquals(methodSources.size(), methodNames.size());

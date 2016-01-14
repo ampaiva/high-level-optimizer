@@ -1,96 +1,59 @@
 package com.ampaiva.hlo.cm;
 
+import com.ampaiva.hlo.util.SourceHandler;
 import com.github.javaparser.ast.Node;
 
 public final class ConcernMetricNode implements Comparable<ConcernMetricNode> {
 
-    private final int beginLine;
-    private final int beginColumn;
-    private final int endLine;
-    private final int endColumn;
-    private int offset;
-    private int length;
+    private final SourceHandler sourceHandler;
 
     public ConcernMetricNode(String source, int beginLine, int beginColumn, int endLine, int endColumn) {
-        this.beginLine = beginLine;
-        this.beginColumn = beginColumn;
-        this.endLine = endLine;
-        this.endColumn = endColumn;
-        getCodePosition(source);
+        this.sourceHandler = new SourceHandler(source, beginLine, beginColumn, endLine, endColumn);
     }
 
     public ConcernMetricNode(String source, Node node) {
         this(source, node.getBeginLine(), node.getBeginColumn(), node.getEndLine(), node.getEndColumn());
     }
 
-    private void getCodePosition(String source) {
-        String[] lines = source.split("(?<=\\r?\\n)");
-        int offset = 0, length = 0;
-        if (lines.length < endLine) {
-            lines = source.split("(?<=\\r)");
-            if (lines.length < endLine) {
-                throw new IllegalArgumentException("Source '" + source + "' does not contain " + this + ": "
-                        + lines.length + " < " + endLine);
-            }
-        }
-        for (int i = 0; i < lines.length; i++) {
-            if (i <= beginLine - 1) {
-                if (i == beginLine - 1) {
-                    offset += beginColumn;
-                    break;
-                }
-                offset += lines[i].length();
-            }
-        }
-        for (int i = 0; i < lines.length; i++) {
-            if (i <= endLine - 1) {
-                if (i == endLine - 1) {
-                    length += endColumn;
-                    break;
-                }
-                length += lines[i].length();
-            }
-        }
-        this.offset = offset;
-        this.length = length - offset + 1;
-    }
-
     public int getOffset() {
-        return offset;
+        return sourceHandler.getOffset();
     }
 
     public int getLength() {
-        return length;
+        return sourceHandler.getLength();
     }
 
     public int getBeginLine() {
-        return beginLine;
+        return sourceHandler.getBeginLine();
     }
 
     public int getBeginColumn() {
-        return beginColumn;
+        return sourceHandler.getBeginColumn();
     }
 
     public int getEndLine() {
-        return endLine;
+        return sourceHandler.getEndLine();
     }
 
     public int getEndColumn() {
-        return endColumn;
+        return sourceHandler.getEndColumn();
     }
 
+    @Override
     public int compareTo(ConcernMetricNode other) {
-        int compare = beginLine - other.beginLine;
+        int compare = getBeginLine() - other.getBeginLine();
         if (compare == 0) {
-            return endLine - other.endLine;
+            return getEndLine() - other.getEndLine();
         }
         return compare;
     }
 
-    @Override
-    public String toString() {
-        return "ConcernMetricNode [beginLine=" + beginLine + ", beginColumn=" + beginColumn + ", endLine=" + endLine
-                + ", endColumn=" + endColumn + ", offset=" + offset + ", length=" + length + "]";
+    public SourceHandler getSourceHandler() {
+        return sourceHandler;
     }
 
+    @Override
+    public String toString() {
+        return "ConcernMetricNode [sourceHandler=" + sourceHandler + "]";
+    }
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ampaiva.hlo.util.SourceHandler;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -33,7 +34,7 @@ import com.github.javaparser.ast.type.Type;
 public class ConcernCollection extends ConcernMetric implements IMethodCalls {
 
     private static final String DOT = ".";
-    private final List<String> methodSources = new ArrayList<>();
+    private final List<SourceHandler> methodSources = new ArrayList<>();
     private final List<String> methodNames = new ArrayList<>();
     private final List<List<Integer>> methodPositions = new ArrayList<>();
     private final List<List<String>> calls = new ArrayList<>();
@@ -47,7 +48,9 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
         sb.append(cu.getTypes().get(0).getName()).append(DOT);
         sb.append(methodName);
         methodNames.add(sb.toString());
-        methodSources.add(obj.toString());
+        SourceHandler sourceHandler = new SourceHandler(getSource(), obj.getBeginLine(), obj.getBeginColumn(),
+                obj.getEndLine(), obj.getEndColumn());
+        methodSources.add(sourceHandler);
         methodPositions
                 .add(Arrays.asList(obj.getBeginLine(), obj.getBeginColumn(), obj.getEndLine(), obj.getEndColumn()));
         calls.add(new ArrayList<String>());
@@ -298,7 +301,7 @@ public class ConcernCollection extends ConcernMetric implements IMethodCalls {
     }
 
     @Override
-    public List<String> getMethodSources() {
+    public List<SourceHandler> getMethodSources() {
         return methodSources;
     }
 
