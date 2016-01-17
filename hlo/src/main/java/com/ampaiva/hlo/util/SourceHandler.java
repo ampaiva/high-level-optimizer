@@ -78,7 +78,7 @@ public class SourceHandler {
     }
 
     private static String[] getLines(String source) {
-        String[] lines = source.split("(?<=[\r\n|\n|\r])");
+        String[] lines = source.split("(?<=[\r\n])");
         int noNulls = 0;
         for (int i = 1; i < lines.length; i++) {
             if (lines[i].length() == 1 && lines[i].equals("\n") && lines[i - 1].endsWith("\r")) {
