@@ -15,10 +15,10 @@ public class SourceHandler {
     public SourceHandler(String source, int beginLine, int beginColumn, int endLine, int endColumn) {
         this.source = source;
         this.beginLine = beginLine;
-        this.beginColumn = beginColumn;
+        this.beginColumn = beginColumn == 0 ? 1 : beginColumn;
         this.lines = getLines(source);
         this.endLine = endLine == 0 ? lines.length : endLine;
-        this.endColumn = endColumn == 0 ? lines[lines.length - 1].length() : endColumn;
+        this.endColumn = endColumn == 0 ? lines[this.endLine - 1].length() : endColumn;
         getCodePosition();
     }
 
@@ -104,7 +104,7 @@ public class SourceHandler {
         for (int i = 0; i < lines.length; i++) {
             if (i <= beginLine - 1) {
                 if (i == beginLine - 1) {
-                    offset += beginColumn;
+                    offset += beginColumn - 1;
                     break;
                 }
                 offset += lines[i].length();
@@ -120,7 +120,7 @@ public class SourceHandler {
             }
         }
         this.offset = offset;
-        this.length = length - offset + 1;
+        this.length = length - offset;
     }
 
     public String[] getLines() {
@@ -128,7 +128,7 @@ public class SourceHandler {
     }
 
     public String getSnippet() {
-        return source.substring(offset - 1, offset - 1 + length);
+        return source.substring(offset, offset + length);
     }
 
     @Override
