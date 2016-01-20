@@ -18,7 +18,8 @@ public class SourceHandler {
         this.beginColumn = beginColumn == 0 ? 1 : beginColumn;
         this.lines = getLines(source);
         this.endLine = endLine == 0 ? lines.length : endLine;
-        this.endColumn = endColumn == 0 ? lines[this.endLine - 1].length() : endColumn;
+        this.endColumn = endColumn == 0
+                ? lines[(this.endLine <= lines.length ? this.endLine : lines.length) - 1].length() : endColumn;
         getCodePosition();
     }
 
@@ -97,10 +98,10 @@ public class SourceHandler {
 
     private void getCodePosition() {
         int offset = 0, length = 0;
-        if (lines.length < endLine) {
-            throw new IllegalArgumentException(
-                    "Source '" + source + "' does not contain " + this + ": " + lines.length + " < " + endLine);
-        }
+        //        if (lines.length < endLine) {
+        //            throw new IllegalArgumentException(
+        //                    "Source '" + source + "' does not contain " + this + ": " + lines.length + " < " + endLine);
+        //        }
         for (int i = 0; i < lines.length; i++) {
             if (i <= beginLine - 1) {
                 if (i == beginLine - 1) {
