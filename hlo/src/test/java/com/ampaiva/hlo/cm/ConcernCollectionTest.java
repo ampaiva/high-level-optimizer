@@ -727,4 +727,39 @@ public class ConcernCollectionTest {
         assertEquals("java.util.List.get.isAvailable", sequence0.get(1));
     }
 
+    @Test
+    public void testSimpleReturn() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public boolean foo(){\n");
+        sb.append("      return Constants.isPersistent();\n");
+        sb.append("    }\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(1, sequence1.size());
+        assertEquals("Constants.isPersistent", sequence1.get(0));
+    }
+
+    @Test
+    public void testIf() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("public class SimpleClass {\n");
+        sb.append("    public void foo(){\n");
+        sb.append("      if(Constants.isPersistent())\n");
+        sb.append("         b();\n");
+        sb.append("    }\n");
+        sb.append("}");
+        ConcernCollection concernCollection = getCCBySource(sb.toString());
+        List<List<String>> sequences = concernCollection.getSequences();
+        assertNotNull(sequences);
+        assertEquals(2, sequences.size());
+        List<String> sequence1 = sequences.get(1);
+        assertEquals(2, sequence1.size());
+        assertEquals("Constants.isPersistent", sequence1.get(0));
+        assertEquals("SimpleClass.b", sequence1.get(1));
+    }
 }
